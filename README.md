@@ -9,3 +9,4 @@
 6、打开AppDelegate.cpp，将第二行改为自己fetch得到的文件里的startScene.h路径
 7、打开startScene.cpp，将第二行改为自己fetch得到的文件里的startLayer.h路径
 8、运行程序
+注意：1—5步只有第一次需进行，后序修改时只需要在fetch后进行6——8步

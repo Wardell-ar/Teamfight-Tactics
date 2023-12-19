@@ -7,5 +7,7 @@ bool firstScene::init() {
     }
     auto firstscenelayer = firstsceneLayer::createLayer();  //获取初始界面场景的挂件
     addChild(firstscenelayer);   //添加挂件渲染,添加layer
+    auto shoplayer = ShopLayer::createShopLayer();  //获取初始界面场景的挂件
+    addChild(shoplayer);   //添加挂件渲染,添加layer
     return true;
 }

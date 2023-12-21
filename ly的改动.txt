@@ -1,0 +1,17 @@
+//英雄类里加入healthBar成员；每次修改时调用更新函数，蓝条同理 
+
+// 创建血条
+ healthBar = ProgressTimer::create(Sprite::create("bloodbarred.png"));
+ healthBar->setType(ProgressTimer::Type::BAR);
+ healthBar->setMidpoint(Vec2(0, 0.5));
+ healthBar->setBarChangeRate(Vec2(1, 0));
+ // 将 healthBar 添加到 mySprite 中
+ mySprite->addChild(healthBar);
+ healthBar->setPosition(Vec2(healthBar->getPositionX() + 250, healthBar->getPositionY()+350));
+
+ // 设置血条初始进度
+ healthBar->setPercentage(hp);
+
+void ShopLayer::updateblood() {
+    healthBar->setPercentage(hp);
+}

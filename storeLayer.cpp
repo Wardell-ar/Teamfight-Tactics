@@ -1,8 +1,3 @@
-<<<<<<< Updated upstream
-#include "storeLayer.h"
-
-Layer* storeLayer::createLayer() {
-=======
 #include <random>
 #include"cocos2d.h"
 #include<string>
@@ -14,7 +9,6 @@ extern std::vector<Hero*> allMyHeroes;//我方所有英雄
 extern std::vector<Hero*> allEnemyHeroes;//敌方所有英雄
 
 storeLayer* storeLayer::createLayer() {
->>>>>>> Stashed changes
 	return storeLayer::create();
 }
 
@@ -22,10 +16,6 @@ bool storeLayer::init() {
 	if (!Layer::init()) {
 		return false;
 	}
-<<<<<<< Updated upstream
-	return true;
-}
-=======
 
     // 初始化金币、经验值、等级
     gold = 100; // 初始金币数量
@@ -121,6 +111,9 @@ void storeLayer::createHeroButtons() {
     srand(std::time(0));
 
     //第一个按钮
+    if (heroButton1 != nullptr) {
+        heroButton1->removeFromParent();
+    }
     int randnum = rand() % 5 + 1;
     switch (randnum) {
         case 1:
@@ -146,6 +139,9 @@ void storeLayer::createHeroButtons() {
     herotype[0] = randnum;
 
     //第二个按钮
+    if (heroButton2 != nullptr) {
+        heroButton2->removeFromParent();
+    }
     randnum = rand() % 5 + 1;
     switch (randnum) {
         case 1:
@@ -171,6 +167,9 @@ void storeLayer::createHeroButtons() {
     herotype[1] = randnum;
 
     //第三个按钮
+    if (heroButton3 != nullptr) {
+        heroButton3->removeFromParent();
+    }
     randnum = rand() % 5 + 1;
     switch (randnum) {
         case 1:
@@ -196,6 +195,9 @@ void storeLayer::createHeroButtons() {
     herotype[2] = randnum;
 
     //第四个按钮
+    if (heroButton4 != nullptr) {
+        heroButton4->removeFromParent();
+    }
     randnum = rand() % 5 + 1;
     switch (randnum) {
         case 1:
@@ -221,6 +223,9 @@ void storeLayer::createHeroButtons() {
     herotype[3] = randnum;
 
     //第五个按钮
+    if (heroButton5 != nullptr) {
+        heroButton5->removeFromParent();
+    }
     randnum = rand() % 5 + 1;
     switch (randnum) {
         case 1:
@@ -265,31 +270,34 @@ void storeLayer::onHeroButtonClicked(Ref* sender, int buttonIndex) {
                 //按键消失
                 switch (buttonIndex) {
                     case 0:
-                        heroButton1->setVisible(false);
                         heroButton1->removeFromParent();
                         delete heroButton1;
+                        heroButton1 = nullptr;
                         break;
                     case 1:
-                        heroButton2->setVisible(false);
                         heroButton2->removeFromParent();
                         delete heroButton2;
+                        heroButton2 = nullptr;
                         break;
                     case 2:
-                        heroButton3->setVisible(false);
                         heroButton3->removeFromParent();
                         delete heroButton3;
+                        heroButton3 = nullptr;
                         break;
                     case 3:
-                        heroButton4->setVisible(false);
                         heroButton4->removeFromParent();
                         delete heroButton4;
+                        heroButton4 = nullptr;
                         break;
                     case 4:
-                        heroButton5->setVisible(false);
                         heroButton5->removeFromParent();
                         delete heroButton5;
+                        heroButton5 = nullptr;
                         break;
                 }
+
+                Hero::mergeHeroes();
+
                 break;
 
             }
@@ -297,4 +305,3 @@ void storeLayer::onHeroButtonClicked(Ref* sender, int buttonIndex) {
     }
 }
 
->>>>>>> Stashed changes

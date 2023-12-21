@@ -25,13 +25,13 @@ public:
     // 移动方法
     void move(Vec2 destination);
     // 合成方法
-    static void mergeHeroes(std::vector<Hero*>& all_heroes);
+    static void mergeHeroes();
 
     // Getter 和 Setter 方法
     int getLevel() const;
     void upgrade(int newLevel);
     int getType()const;
-    void updateHeroColor();
+   
     // 进入战斗状态
     void enterBattle();
 

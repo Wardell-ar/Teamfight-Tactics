@@ -1,12 +1,8 @@
-<<<<<<< Updated upstream
-#include"cocos2d.h"
-=======
 #pragma once
 #include"cocos2d.h"
 #include "ui/CocosGUI.h"
 #include"heroSprite.h"
 #define __SHOP_LAYER_H__
->>>>>>> Stashed changes
 USING_NS_CC;
 
 /*
@@ -21,13 +17,6 @@ USING_NS_CC;
 
 class storeLayer : public Layer
 {
-<<<<<<< Updated upstream
-
-public:
-	static Layer* createLayer();
-	virtual bool init();
-	CREATE_FUNC(storeLayer);
-=======
 public:
     int herotype[5];
     int herocost[ALL_TYPE + 1] = { -1,2,2,2,2,2 };
@@ -59,6 +48,5 @@ public:
     void onHeroButtonClicked(cocos2d::Ref* sender, int heroIndex);  // 英雄按钮点击事件
 
 
->>>>>>> Stashed changes
 };
 

@@ -325,7 +325,7 @@ void Hero::attack()
                     }
                 }
                 if (targetFind) {
-                    myHero->attack(target);
+                    //myHero->attack(target);
                     attacked_1 = 1;
                 }
 
@@ -352,7 +352,7 @@ void Hero::attack()
                 }
 
                 if (targetFind) {
-                    enemyHero->attack(target);
+                    //enemyHero->attack(target);
                     attacked_2 = 1;
                 }
 

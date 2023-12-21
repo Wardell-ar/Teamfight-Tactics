@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 #include"cocos2d.h"
+=======
+#pragma once
+#include"cocos2d.h"
+#include "ui/CocosGUI.h"
+#include"heroSprite.h"
+#define __SHOP_LAYER_H__
+>>>>>>> Stashed changes
 USING_NS_CC;
 
 /*
@@ -13,10 +21,44 @@ USING_NS_CC;
 
 class storeLayer : public Layer
 {
+<<<<<<< Updated upstream
 
 public:
 	static Layer* createLayer();
 	virtual bool init();
 	CREATE_FUNC(storeLayer);
+=======
+public:
+    int herotype[5];
+    int herocost[ALL_TYPE + 1] = { -1,2,2,2,2,2 };
+    static storeLayer* createLayer();
+    CREATE_FUNC(storeLayer);
+
+    bool init() override;
+    int gold;  // 金币数量
+    int exp;   // 经验值
+    int level;
+
+    cocos2d::ui::LoadingBar* expBar; // 经验条
+    cocos2d::Label* goldLabel;       // 显示金币数量的标签
+    cocos2d::Label* levelLabel;      // 显示等级的标签
+
+    cocos2d::ui::Button* heroButton1;
+    cocos2d::ui::Button* heroButton2;
+    cocos2d::ui::Button* heroButton3;
+    cocos2d::ui::Button* heroButton4;
+    cocos2d::ui::Button* heroButton5;
+
+    void updateUI(); // 更新UI显示
+    void upgrade();  // 升级操作
+    void refresh();  // 刷新操作
+
+    void onUpgradeButtonClicked(cocos2d::Ref* sender);
+    void onRefreshButtonClicked(cocos2d::Ref* sender);
+    void createHeroButtons();  // 创建英雄按钮
+    void onHeroButtonClicked(cocos2d::Ref* sender, int heroIndex);  // 英雄按钮点击事件
+
+
+>>>>>>> Stashed changes
 };
 

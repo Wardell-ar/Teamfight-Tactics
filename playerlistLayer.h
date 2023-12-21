@@ -1,3 +1,7 @@
+<<<<<<< Updated upstream
+=======
+#pragma once
+>>>>>>> Stashed changes
 #include"cocos2d.h"
 USING_NS_CC;
 

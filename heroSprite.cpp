@@ -18,7 +18,7 @@ Hero::Hero()
     camp = -1;
     heroType = -1;
     weapon = -1;
-    power = 50;
+    power = 10;
     inBattle = 0;
     inBoard = 0;
     Die = 0;
@@ -299,70 +299,72 @@ void Hero::attack()
         }
     }
 
-
-
-
-    
-        bool attacked_1 = 0;
-        bool attacked_2 = 0;
-        //我方攻击动作
-        for (auto myHero : myHeroes)
-        {
-            if (!myHero->Die) {
-                Hero* target = enemyHeroes.front();
-                bool targetFind = 0;
-                long long nearst_distance = 99999999999;
-                for (auto enemyHero : enemyHeroes) {
-                    if (!enemyHero->Die) {
-                        targetFind = 1;
-                        long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
-                        long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
-                        long long distance = pow(x_distance, 2) + pow(y_distance, 2);
-                        if (distance < nearst_distance) {
-                            target = enemyHero;
-                            nearst_distance = distance;
-                        }
+    auto attackCallback = CallFunc::create([myHeroes, enemyHeroes]() {
+    static bool attacked_1 = 0;
+    static bool attacked_2 = 0;
+    //我方攻击动作
+    for (auto myHero : myHeroes)
+    {
+        if (!myHero->Die) {
+            Hero* target = enemyHeroes.front();
+            bool targetFind = 0;
+            long long nearst_distance = 99999999999;
+            for (auto enemyHero : enemyHeroes) {
+                if (!enemyHero->Die) {
+                    targetFind = 1;
+                    long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
+                    long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
+                    long long distance = pow(x_distance, 2) + pow(y_distance, 2);
+                    if (distance < nearst_distance) {
+                        target = enemyHero;
+                        nearst_distance = distance;
                     }
                 }
-                if (targetFind) {
-                    //myHero->attack(target);
-                    attacked_1 = 1;
-                }
-
             }
+            if (targetFind) {
+                myHero->attack(target);
+                attacked_1 = 1;
+            }
+
         }
-        //敌方攻击动作
-        for (auto enemyHero : enemyHeroes)
-        {
-            if (!enemyHero->Die) {
-                Hero* target = myHeroes.front();
-                bool targetFind = 0;
-                long long nearst_distance = 99999999999;
-                for (auto myHero : myHeroes) {
-                    if (!myHero->Die) {
-                        targetFind = 1;
-                        long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
-                        long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
-                        long long distance = pow(x_distance, 2) + pow(y_distance, 2);
-                        if (distance < nearst_distance) {
-                            target = myHero;
-                            nearst_distance = distance;
-                        }
+    }
+    //敌方攻击动作
+    for (auto enemyHero : enemyHeroes)
+    {
+        if (!enemyHero->Die) {
+            Hero* target = myHeroes.front();
+            bool targetFind = 0;
+            long long nearst_distance = 99999999999;
+            for (auto myHero : myHeroes) {
+                if (!myHero->Die) {
+                    targetFind = 1;
+                    long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
+                    long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
+                    long long distance = pow(x_distance, 2) + pow(y_distance, 2);
+                    if (distance < nearst_distance) {
+                        target = myHero;
+                        nearst_distance = distance;
                     }
                 }
-
-                if (targetFind) {
-                    //enemyHero->attack(target);
-                    attacked_2 = 1;
-                }
-
             }
+
+            if (targetFind) {
+                enemyHero->attack(target);
+                attacked_2 = 1;
+            }
+
         }
-        
-    
+    }
+    });
+    auto sequence = Sequence::create(attackCallback, nullptr);
+    auto repeat = RepeatForever::create(sequence);
+    auto temp = Sprite::create();
+    temp->runAction(repeat);
 
     fight = 0;
 }
+
+
 //获取近战还是远程
 int Hero::getWeapon() const
 {
@@ -383,9 +385,9 @@ void Hero::attack(Hero* target)
 
         // 在我方英雄位置生成一支飞箭的图片
         auto arrow = Sprite::create("arrow.png"); // 请替换为实际的箭头图片路径
-        arrow->setPosition(myPosition);
         this->getParent()->addChild(arrow);
 
+        arrow->setPosition(myPosition);
 
         // 创建移动动作，一秒后挪到敌方英雄位置
         auto moveTo = MoveTo::create(0.5f, enemyPosition);
@@ -405,16 +407,11 @@ void Hero::attack(Hero* target)
         // 创建一个序列动作，先移动并消失，然后执行回调
         auto sequence = Sequence::create(moveTo, attackCallback, disappearCallback, nullptr);
 
-
         // 运行飞箭动作
         arrow->runAction(sequence);
-
-
-
-
+        
     }
     else {
-
 
         Vec2 closePosition;
         if (target->getWeapon()) {
@@ -432,9 +429,9 @@ void Hero::attack(Hero* target)
         // 示例：减少目标血量
         auto attackCallback = CallFunc::create([this, target]() {
             target->decreaseHealth(power);
-        });
+            });
 
-        auto moveBack=MoveTo::create(0.5f, myPosition);
+        auto moveBack = MoveTo::create(0.5f, myPosition);
 
         auto sequence = Sequence::create(moveTo, rotateAction, attackCallback, moveBack, nullptr);
         this->runAction(sequence);

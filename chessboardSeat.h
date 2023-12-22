@@ -6,6 +6,6 @@ class chessboardSeat
 public:
 	myPosition* seats;
 	int Size;
-	chessboardSeat();
+	chessboardSeat(int IsMine);
 	~chessboardSeat();
 };

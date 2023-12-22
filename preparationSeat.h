@@ -6,7 +6,7 @@ class preparationSeat
 public:
 	myPosition* seats;
 	int Size;
-	preparationSeat();
+	preparationSeat(int IsMine);
 	~preparationSeat();
 };
 

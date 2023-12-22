@@ -263,7 +263,7 @@ void storeLayer::onHeroButtonClicked(Ref* sender, int buttonIndex) {
 
                 //英雄显示在备战席
                 auto hero = Hero::createHero(herotype[buttonIndex], Vec2(seat2.seats[i].x + 70, seat2.seats[i].y + 50), 1);
-                this->getParent()->addChild(hero, 1);
+                this->getParent()->addChild(hero, 2);
                 seat2.seats[i].Setsprite();
                 hero->setIndex(i);
 

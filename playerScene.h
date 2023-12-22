@@ -6,7 +6,6 @@
 #include"storeLayer.h"
 #include"playerroleLayer.h"
 #include"hero1.h"
-
 USING_NS_CC;
 
 
@@ -25,6 +24,8 @@ class playerScene : public Scene
 public:
 
 	storeLayer* store;
+	
+
 
 	static Scene* createScene();
 	virtual bool init();

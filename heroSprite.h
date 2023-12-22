@@ -18,6 +18,7 @@ private:
     int seatIndex = -1;   //seat的下标
     int Die = 0;   //1表示挂了
     int exist = 1;  //1表示还在
+    int click = 0;   //用于点击判定
 public:
     Hero();
     // 创建不同类型的英雄
@@ -62,9 +63,6 @@ public:
     // 攻击方法，攻击指定目标
     void attack(Hero* target);
 
-    // 在一个新线程中模拟攻击
-    void attackInThread(Hero* target);
-
     // 减少血量方法
     void decreaseHealth(int amount);
 
@@ -102,5 +100,20 @@ public:
     //获取位置
     int GetIndex() {
         return seatIndex;
+    }
+
+    //判断是否被点击
+    int IsClicked() {
+        return click;
+    }
+
+    //设置点击
+    void SetClicked(int c) {
+        click = c;
+    }
+
+    //设置Borad变量值
+    void SetBoard(int b) {
+        inBoard = b;
     }
 };

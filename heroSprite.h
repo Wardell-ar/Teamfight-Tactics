@@ -16,7 +16,7 @@ private:
     bool inBattle;  // 标志是否处于战斗状态(1为处于战斗状态)
     bool inBoard = 0;//标记是否位于棋盘上（1表示在棋盘上，0表示在备战席）
     int seatIndex = -1;   //seat的下标
-    int Die = 0;   //1表示挂了
+    bool Die = 0;   //1表示挂了
     int exist = 1;  //1表示还在
 public:
     Hero();
@@ -55,6 +55,7 @@ public:
 
     // 攻击方法
     static void attack();
+    
     //获取近战还是远程
     int getWeapon() const;
 
@@ -102,5 +103,11 @@ public:
     //获取位置
     int GetIndex() {
         return seatIndex;
+    }
+    int isDead(){
+        return Die;
+    }
+    int isExist() {
+        return exist;
     }
 };

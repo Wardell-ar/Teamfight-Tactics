@@ -54,7 +54,11 @@ bool playerScene::init() {
 	auto hero2 = Hero::createHero(1, Vec2(700, 800), 2);
 	this->addChild(hero2, 1);
 	hero2->enterBattle();
-	Hero::attack();
+
+	startTimer();
+	
+
+	
 	/*
 	hero1->attack(hero2);
 	hero2->attack(hero1);

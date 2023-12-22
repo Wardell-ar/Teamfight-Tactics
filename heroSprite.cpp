@@ -301,6 +301,7 @@ void Hero::attack()
 
 
 
+   
 
     
         bool attacked_1 = 0;
@@ -325,7 +326,7 @@ void Hero::attack()
                     }
                 }
                 if (targetFind) {
-                    //myHero->attack(target);
+                    myHero->attack(target);
                     attacked_1 = 1;
                 }
 
@@ -352,7 +353,7 @@ void Hero::attack()
                 }
 
                 if (targetFind) {
-                    //enemyHero->attack(target);
+                    enemyHero->attack(target);
                     attacked_2 = 1;
                 }
 
@@ -363,6 +364,7 @@ void Hero::attack()
 
     fight = 0;
 }
+
 //获取近战还是远程
 int Hero::getWeapon() const
 {
@@ -436,7 +438,7 @@ void Hero::attack(Hero* target)
 
         auto moveBack=MoveTo::create(0.5f, myPosition);
 
-        auto sequence = Sequence::create(moveTo, rotateAction, attackCallback, moveBack, nullptr);
+        auto sequence = Sequence::create(moveTo, rotateAction, moveBack, attackCallback, nullptr);
         this->runAction(sequence);
 
     }

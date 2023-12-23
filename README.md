@@ -69,3 +69,10 @@ init()添加代码：
 	// 添加进度条到场景
 	this->addChild(progress0, 1);
 	this->addChild(progress1, 2);
+
+
+2020/12/23 许扬扬
+
+实现了在vscode中用nodejs搭建一个简易的服务器，并在cocos2d中实现了连接。
+
+后来使用C++在VS上搭建了一个服务器，nodejs版可当作备选。

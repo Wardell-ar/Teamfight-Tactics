@@ -49,45 +49,25 @@ bool playerScene::init() {
 	this->addChild(background, 0);
 	background->setPosition(955, 540);
 
-	//英雄放置位置测试
-	/*
-	auto hero = hero1::createLayer();
-	this->addChild(hero, 1, HEROTAG);
-	hero->setPosition(Vec2(seat2.seats[8].x+70, seat2.seats[8].y+50));
-	auto listener1 = EventListenerTouchOneByOne::create();
-	listener1->onTouchBegan = [hero, this](Touch* t, Event* e)->bool {
-		Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
-		Vec2 heroposition = hero->getPosition();
-		Vec2 myclick = this->convertTouchToNodeSpace(t);
-		if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
-			log("yes");
-		}
-		else {
-			log("no");
-		}
-		return true;
-	};
-	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(listener1, this);
-	*/
-
 
 	//英雄攻击测试
-	/*
+	
 	auto hero1 = Hero::createHero(1, Vec2(700, 400), 1);
-	this->addChild(hero1, 1);
-	hero1->enterBattle();
+	this->addChild(hero1, 2);
+	hero1->enterBoard();
 
 	auto hero2 = Hero::createHero(1, Vec2(700, 800), 2);
-	this->addChild(hero2, 1);
-	hero2->enterBattle();
-	Hero::attack();
-	*/
+	this->addChild(hero2, 2);
+	hero2->enterBoard();
+	startTimer();
+	
 	/*
 	hero1->attack(hero2);
 	hero2->attack(hero1);
 	*/
 
-	//英雄位置移动
+
+	/*英雄位置移动*/
 	auto changePosListener = EventListenerTouchOneByOne::create();
 	//事件吞没
 	changePosListener->setSwallowTouches(true);   
@@ -338,6 +318,8 @@ bool playerScene::init() {
 		MySeat[i + 5]->setPosition(seat2.seats[i].x + 70, seat2.seats[i].y + 50);
 		this->addChild(MySeat[i + 5], 1);
 	}
+
+
 
 
 	//英雄售卖——通过鼠标点击右键来实现

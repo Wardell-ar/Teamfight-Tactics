@@ -13,7 +13,6 @@ private:
     int heroType;//英雄种类(1-ALL_TYPE)
     int weapon;//攻击方式(1为远程，0为近战）
     int power;//攻击力
-    bool inBattle;  // 标志是否处于战斗状态(1为处于战斗状态)
     bool inBoard = 0;//标记是否位于棋盘上（1表示在棋盘上，0表示在备战席）
     int seatIndex = -1;   //seat的下标
     int Die = 0;   //1表示挂了
@@ -32,14 +31,6 @@ public:
     void upgrade(int newLevel);
     int getType()const;
    
-    // 进入战斗状态
-    void enterBattle();
-
-    // 退出战斗状态
-    void exitBattle();
-
-    // 是否处于战斗状态
-    bool isInBattle() const;
 
     // 进入棋盘
     void enterBoard();
@@ -49,12 +40,7 @@ public:
 
     // 是否处于棋盘
     bool isInBoard() const;
-
-    // 创建一个包含原有动作和新动作的 Spawn
-    static Spawn* addAdditionalActionToSpawn(Spawn* originalSpawn, FiniteTimeAction* additionalAction);
-
-    // 攻击方法
-    static void attack();
+    
     //获取近战还是远程
     int getWeapon() const;
 
@@ -105,5 +91,9 @@ public:
     //设置Borad变量值
     void SetBoard(int b) {
         inBoard = b;
+    }
+
+    int isDead() {
+        return Die;
     }
 };

@@ -19,7 +19,6 @@ Hero::Hero()
     heroType = -1;
     weapon = -1;
     power = 10;
-    inBattle = 0;
     inBoard = 0;
     Die = 0;
     seatIndex = -1;
@@ -104,6 +103,8 @@ void Hero::move(Vec2 destination)
     auto moveTo = MoveTo::create(1.0f, destination);
     this->runAction(moveTo);
 }
+
+
 // 合成方法
 void Hero::mergeHeroes()
 {
@@ -119,14 +120,14 @@ void Hero::mergeHeroes()
             for (Hero* hero : allMyHeroes)
             {
 
-                if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                if (!(hero->isInBoard() && fight == 1) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                     myCount++;
                 }
             }
             for (Hero* hero : allEnemyHeroes)
             {
 
-                if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                if (!(hero->isInBoard() && fight == 1) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                     enemyCount++;
                 }
             }
@@ -140,7 +141,7 @@ void Hero::mergeHeroes()
 
 
 
-                    if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                    if (!(hero->isInBoard() && fight == 1) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                         hero->setVisible(false);
                         if (hero->inBoard) {
                             seat1.seats[hero->seatIndex].state = 0;
@@ -171,8 +172,8 @@ void Hero::mergeHeroes()
                 }
                 //删除另外两个英雄
                 for (Hero* hero : heroToDelete) {
-                    hero->removeFromParent();
                     allMyHeroes.eraseObject(hero);
+                    hero->removeFromParent();
                 }
             }
 
@@ -185,7 +186,7 @@ void Hero::mergeHeroes()
 
 
 
-                    if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                    if (!(hero->isInBoard() && fight == 1) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                         hero->setVisible(false);
                         if (hero->inBoard) {
                             seat1.seats[hero->seatIndex].state = 0;
@@ -216,8 +217,8 @@ void Hero::mergeHeroes()
                 }
                 //删除另外两个英雄
                 for (Hero* hero : heroToDelete) {
-                    hero->removeFromParent();
                     allEnemyHeroes.eraseObject(hero);
+                    hero->removeFromParent();
                 }
             }
 
@@ -226,8 +227,10 @@ void Hero::mergeHeroes()
     }
 }
 
+
 // Getter 和 Setter 方法
 int Hero::getLevel() const { return level; }
+
 void Hero::upgrade(int newLevel) {
     level = newLevel;
     blood *= 2;
@@ -236,25 +239,9 @@ void Hero::upgrade(int newLevel) {
     setScale(0.10 + level * 0.05);
     
 }
+
 int Hero::getType()const { return heroType; }
 
-// 进入战斗状态
-void Hero::enterBattle()
-{
-    inBattle = true;
-}
-
-// 退出战斗状态
-void Hero::exitBattle()
-{
-    inBattle = false;
-}
-
-// 是否处于战斗状态
-bool Hero::isInBattle() const
-{
-    return inBattle;
-}
 
 // 进入棋盘
 void Hero::enterBoard()
@@ -272,106 +259,6 @@ void Hero::exitBoard()
 bool Hero::isInBoard() const
 {
     return inBoard;
-}
-
-// 创建一个包含原有动作和新动作的 Spawn
-Spawn* Hero::addAdditionalActionToSpawn(Spawn* originalSpawn, FiniteTimeAction* additionalAction) {
-    // 创建一个新的 Spawn，包括原有动作和新动作
-    auto combinedSpawn = Spawn::create(additionalAction, originalSpawn, nullptr);
-
-    return combinedSpawn;
-}
-
-// 攻击方法
-void Hero::attack()
-{
-    fight = 1;
-    // 根据阵营将所有处于战斗状态的英雄分别存储到两个堆里面
-    std::vector<Hero*> myHeroes;
-    std::vector<Hero*> enemyHeroes;
-
-    // 遍历所有战斗英雄
-
-    // 你需要根据实际情况修改
-    for (auto hero : allMyHeroes)
-    {
-        if (hero->isInBattle())
-        {
-            myHeroes.push_back(hero);
-
-        }
-    }
-    for (auto hero : allEnemyHeroes)
-    {
-        if (hero->isInBattle())
-        {
-            enemyHeroes.push_back(hero);
-        }
-    }
-
-    auto attackCallback = CallFunc::create([myHeroes, enemyHeroes]() {
-    static bool attacked_1 = 0;
-    static bool attacked_2 = 0;
-    //我方攻击动作
-    for (auto myHero : myHeroes)
-    {
-        if (!myHero->Die) {
-            Hero* target = enemyHeroes.front();
-            bool targetFind = 0;
-            long long nearst_distance = 99999999999;
-            for (auto enemyHero : enemyHeroes) {
-                if (!enemyHero->Die) {
-                    targetFind = 1;
-                    long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
-                    long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
-                    long long distance = pow(x_distance, 2) + pow(y_distance, 2);
-                    if (distance < nearst_distance) {
-                        target = enemyHero;
-                        nearst_distance = distance;
-                    }
-                }
-            }
-            if (targetFind) {
-                myHero->attack(target);
-                attacked_1 = 1;
-            }
-
-        }
-    }
-    //敌方攻击动作
-    for (auto enemyHero : enemyHeroes)
-    {
-        if (!enemyHero->Die) {
-            Hero* target = myHeroes.front();
-            bool targetFind = 0;
-            long long nearst_distance = 99999999999;
-            for (auto myHero : myHeroes) {
-                if (!myHero->Die) {
-                    targetFind = 1;
-                    long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
-                    long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
-                    long long distance = pow(x_distance, 2) + pow(y_distance, 2);
-                    if (distance < nearst_distance) {
-                        target = myHero;
-                        nearst_distance = distance;
-                    }
-                }
-            }
-
-            if (targetFind) {
-                enemyHero->attack(target);
-                attacked_2 = 1;
-            }
-
-        }
-    }
-    });
-    auto sequence = Sequence::create(attackCallback, nullptr);
-    auto repeat = RepeatForever::create(sequence);
-    auto temp = Sprite::create();
-    temp->runAction(repeat);
-
-    fight = 0;
 }
 
 

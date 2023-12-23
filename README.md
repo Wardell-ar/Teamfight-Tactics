@@ -76,3 +76,10 @@ init()添加代码：
 实现了在vscode中用nodejs搭建一个简易的服务器，并在cocos2d中实现了连接。
 
 后来使用C++在VS上搭建了一个服务器，nodejs版可当作备选。
+
+下载websocketpp库（0.8.2） 下载boost（32）
+搭建环境
+在vs中实现服务器的搭建
+IP地址为我的计算机IPv4地址 端口为9002
+在http://www.websocket-test.com/网站测试成功
+实现不同计算机连接到同一个ip地址

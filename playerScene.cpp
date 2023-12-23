@@ -344,14 +344,14 @@ bool playerScene::init() {
 	auto sellheroListener = EventListenerMouse::create();
 	sellheroListener->onMouseDown = [this](EventMouse* event)->void {
 		if (event->getMouseButton() == EventMouse::MouseButton::BUTTON_RIGHT) {
-			Vec2 myclick = Vec2(event->getCursorX(), event->getCursorY());
 			//在战斗，则只能卖备战席上的英雄
 			if (fight) {
 				for (Hero* hero : allMyHeroes) {
 					if (!hero->isInBoard()) {  //不在战斗席上
-						Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
-						Vec2 heroposition = hero->getPosition();
-						if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
+						Vec2 touchLocation = Vec2(event->getCursorX(), event->getCursorY());
+						touchLocation = hero->convertToNodeSpace(touchLocation);
+						Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
+						if (spriteBoundingBox.containsPoint(touchLocation)) {
 							//商店加钱，要显示刷新
 							store->gold += (store->herocost[hero->GetheroType()]) * pow(3, (hero->getLevel()) - 1);
 							store->updateUI();
@@ -367,9 +367,11 @@ bool playerScene::init() {
 			}
 			else {  //非战斗环节，可以点击所有英雄
 				for (Hero* hero : allMyHeroes) {
-					Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
-					Vec2 heroposition = hero->getPosition();
-					if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
+					Vec2 touchLocation = Vec2(event->getCursorX(), event->getCursorY());
+					touchLocation = hero->convertToNodeSpace(touchLocation);
+					Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
+					
+					if (spriteBoundingBox.containsPoint(touchLocation)) {
 						//商店加钱，要显示刷新
 						store->gold += (store->herocost[hero->GetheroType()]) * pow(3, (hero->getLevel()) - 1);
 						store->updateUI();

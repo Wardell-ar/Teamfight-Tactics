@@ -7,8 +7,8 @@ extern chessboardSeat seat1;
 extern preparationSeat seat2;
 
 int fight = 0;
-std::vector<Hero*> allMyHeroes;//我方所有英雄
-std::vector<Hero*> allEnemyHeroes;//敌方所有英雄
+Vector<Hero*> allMyHeroes;//我方所有英雄
+Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 
 Hero::Hero()
 {
@@ -22,7 +22,6 @@ Hero::Hero()
     inBattle = 0;
     inBoard = 0;
     Die = 0;
-    exist = 1;
     seatIndex = -1;
 }
 // 创建不同类型的英雄
@@ -30,10 +29,10 @@ Hero* Hero::createHero(int heroType, const Vec2& position, int camp)
 {
     Hero* hero = new Hero();
     if (camp == 1) {
-        allMyHeroes.push_back(hero);
+        allMyHeroes.pushBack(hero);
     }
     else
-        allEnemyHeroes.push_back(hero);
+        allEnemyHeroes.pushBack(hero);
 
     if (hero)
     {
@@ -120,14 +119,14 @@ void Hero::mergeHeroes()
             for (Hero* hero : allMyHeroes)
             {
 
-                if (!(hero->isInBattle()) && hero->exist && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                     myCount++;
                 }
             }
             for (Hero* hero : allEnemyHeroes)
             {
 
-                if (!(hero->isInBattle()) && hero->exist && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
+                if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                     enemyCount++;
                 }
             }
@@ -136,12 +135,12 @@ void Hero::mergeHeroes()
 
                 int countDown = 3;
                 bool heroFind = 0;
+                Vector<Hero*>heroToDelete;
                 for (Hero* hero : allMyHeroes) {
 
 
 
-                    if (!(hero->isInBattle()) && hero->exist && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
-                        hero->exist = 0;
+                    if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                         hero->setVisible(false);
                         if (hero->inBoard) {
                             seat1.seats[hero->seatIndex].state = 0;
@@ -153,7 +152,6 @@ void Hero::mergeHeroes()
                         countDown--;
                         if ((hero->inBoard || countDown == 0) && !heroFind) {
                             hero->upgrade(i + 1);
-                            hero->exist = 1;
                             hero->setVisible(true);
                             if (hero->inBoard) {
                                 seat1.seats[hero->seatIndex].state = 1;
@@ -163,25 +161,31 @@ void Hero::mergeHeroes()
                             }
                             heroFind = 1;
                         }
-
+                        else {
+                            heroToDelete.pushBack(hero);
+                        }
                     }
                     if (countDown <= 0) {
                         break;
                     }
                 }
-
+                //删除另外两个英雄
+                for (Hero* hero : heroToDelete) {
+                    hero->removeFromParent();
+                    allMyHeroes.eraseObject(hero);
+                }
             }
 
             for (int k = (enemyCount / 3); k > 0; k--) {
 
                 int countDown = 3;
                 bool heroFind = 0;
+                Vector<Hero*>heroToDelete;
                 for (Hero* hero : allEnemyHeroes) {
 
 
 
-                    if (!(hero->isInBattle()) && hero->exist && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
-                        hero->exist = 0;
+                    if (!(hero->isInBattle()) && !hero->Die && hero->getType() == j && hero->getLevel() == i) {
                         hero->setVisible(false);
                         if (hero->inBoard) {
                             seat1.seats[hero->seatIndex].state = 0;
@@ -192,7 +196,6 @@ void Hero::mergeHeroes()
                         countDown--;
                         if ((hero->inBoard || countDown == 0) && !heroFind) {
                             hero->upgrade(i + 1);
-                            hero->exist = 1;
                             hero->setVisible(true);
                             if (hero->inBoard) {
                                 seat1.seats[hero->seatIndex].state = 1;
@@ -202,13 +205,20 @@ void Hero::mergeHeroes()
                             }
                             heroFind = 1;
                         }
+                        else {
+                            heroToDelete.pushBack(hero);
+                        }
 
                     }
                     if (countDown <= 0) {
                         break;
                     }
                 }
-
+                //删除另外两个英雄
+                for (Hero* hero : heroToDelete) {
+                    hero->removeFromParent();
+                    allEnemyHeroes.eraseObject(hero);
+                }
             }
 
 
@@ -285,7 +295,7 @@ void Hero::attack()
     // 你需要根据实际情况修改
     for (auto hero : allMyHeroes)
     {
-        if (hero->isInBattle() && hero->exist)
+        if (hero->isInBattle())
         {
             myHeroes.push_back(hero);
 
@@ -293,7 +303,7 @@ void Hero::attack()
     }
     for (auto hero : allEnemyHeroes)
     {
-        if (hero->isInBattle() && hero->exist)
+        if (hero->isInBattle())
         {
             enemyHeroes.push_back(hero);
         }

@@ -17,7 +17,6 @@ private:
     bool inBoard = 0;//标记是否位于棋盘上（1表示在棋盘上，0表示在备战席）
     int seatIndex = -1;   //seat的下标
     int Die = 0;   //1表示挂了
-    int exist = 1;  //1表示还在
     int click = 0;   //用于点击判定
 public:
     Hero();
@@ -78,15 +77,6 @@ public:
     //设置位置下标
     void setIndex(int index);
 
-    // 设置英雄有效性
-    void Setexist(int ee) {
-        exist = ee;
-    }
-
-    //获取英雄有效性
-    int Getexist() {
-        return exist;
-    }
 
     // 获取英雄种类
     int GetheroType() {

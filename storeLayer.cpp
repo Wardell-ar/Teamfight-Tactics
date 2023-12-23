@@ -5,8 +5,8 @@
 
 extern chessboardSeat seat1;
 extern preparationSeat seat2;
-extern std::vector<Hero*> allMyHeroes;//我方所有英雄
-extern std::vector<Hero*> allEnemyHeroes;//敌方所有英雄
+extern Vector<Hero*> allMyHeroes;//我方所有英雄
+extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 
 storeLayer* storeLayer::createLayer() {
 	return storeLayer::create();

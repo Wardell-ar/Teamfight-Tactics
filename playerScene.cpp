@@ -30,11 +30,11 @@ preparationSeat seat2(1);   //备战席位置
 
 chessboardSeat seat3(0);   //敌方棋盘位置
 preparationSeat seat4(0);   //敌方备战席位置
-extern std::vector<Hero*> allMyHeroes;//我方所有英雄
-extern std::vector<Hero*> allEnemyHeroes;//敌方所有英雄
+extern Vector<Hero*> allMyHeroes;//我方所有英雄
+extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 extern int fight;
 
-Scene* playerScene::createScene() {
+playerScene* playerScene::createScene() {
 	return playerScene::create();
 }
 
@@ -98,7 +98,7 @@ bool playerScene::init() {
 		//战斗环节只能对备战席上英雄点击有效
 		if (fight) {
 			for (Hero* hero : allMyHeroes) {
-				if (!hero->isInBoard() && hero->Getexist()) {  //不在战斗席上
+				if (!hero->isInBoard()) {  //不在战斗席上
 					Vec2 myclick = t->getLocation();
 					myclick = hero->convertToNodeSpace(myclick);
 					Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
@@ -112,14 +112,12 @@ bool playerScene::init() {
 		}
 		else {  //非战斗环节对所有己方英雄点击均有效
 			for (Hero* hero : allMyHeroes) {
-				if (hero->Getexist()) {
-					Vec2 myclick = t->getLocation();
-					myclick = hero->convertToNodeSpace(myclick);
-					Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
-					if (spriteBoundingBox.containsPoint(myclick)) {
-						hero->SetClicked(1);
-						return true;
-					}
+				Vec2 myclick = t->getLocation();
+				myclick = hero->convertToNodeSpace(myclick);
+				Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
+				if (spriteBoundingBox.containsPoint(myclick)) {
+					hero->SetClicked(1);
+					return true;
 				}
 			}
 			return false;  //即没有点击到任何英雄
@@ -163,7 +161,7 @@ bool playerScene::init() {
 						for (Hero* hero1 : allMyHeroes) {
 							if (hero1->IsClicked()) {  //找到被点击的英雄
 								for (Hero* hero2 : allMyHeroes) {
-									if (hero2->Getexist() && !hero2->isInBoard() && hero2->GetIndex() == index) {
+									if (!hero2->isInBoard() && hero2->GetIndex() == index) {
 										//交换位置
 										hero2->setIndex(hero1->GetIndex());
 										hero1->setIndex(index);
@@ -226,7 +224,7 @@ bool playerScene::init() {
 							for (Hero* hero1 : allMyHeroes) {
 								if (hero1->IsClicked()) {  //找到被点击的英雄
 									for (Hero* hero2 : allMyHeroes) {
-										if (hero2->Getexist() && !hero2->isInBoard() && hero2->GetIndex() == index) {
+										if (!hero2->isInBoard() && hero2->GetIndex() == index) {
 											//交换位置
 											hero2->setIndex(hero1->GetIndex());
 											hero1->setIndex(index);
@@ -274,7 +272,7 @@ bool playerScene::init() {
 							for (Hero* hero1 : allMyHeroes) {
 								if (hero1->IsClicked()) {  //找到被点击的英雄
 									for (Hero* hero2 : allMyHeroes) {
-										if (hero2->Getexist() && hero2->isInBoard() && hero2->GetIndex() == index) {
+										if (hero2->isInBoard() && hero2->GetIndex() == index) {
 											//交换位置
 											hero2->setIndex(hero1->GetIndex());
 											hero1->setIndex(index);
@@ -350,7 +348,7 @@ bool playerScene::init() {
 			//在战斗，则只能卖备战席上的英雄
 			if (fight) {
 				for (Hero* hero : allMyHeroes) {
-					if (!hero->isInBoard() && hero->Getexist()) {  //不在战斗席上
+					if (!hero->isInBoard()) {  //不在战斗席上
 						Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
 						Vec2 heroposition = hero->getPosition();
 						if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
@@ -359,9 +357,9 @@ bool playerScene::init() {
 							store->updateUI();
 
 							//英雄消失
-							hero->Setexist(0);  //使该英雄无效
-							hero->setVisible(false);
 							seat2.seats[hero->GetIndex()].Removesprite();
+							allMyHeroes.eraseObject(hero);
+							hero->removeFromParent();
 							break;
 						}
 					}
@@ -369,25 +367,23 @@ bool playerScene::init() {
 			}
 			else {  //非战斗环节，可以点击所有英雄
 				for (Hero* hero : allMyHeroes) {
-					if (hero->Getexist()) {
-						Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
-						Vec2 heroposition = hero->getPosition();
-						if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
-							//商店加钱，要显示刷新
-							store->gold += (store->herocost[hero->GetheroType()]) * pow(3, (hero->getLevel()) - 1);
-							store->updateUI();
+					Vec2 herosize = Vec2(442 * hero->getScale(), 375 * hero->getScale());
+					Vec2 heroposition = hero->getPosition();
+					if (myclick.x > heroposition.x - herosize.x / 9 && myclick.x<heroposition.x + herosize.x / 9 && myclick.y>heroposition.y - herosize.y / 9 && myclick.y < heroposition.y + herosize.y / 9) {
+						//商店加钱，要显示刷新
+						store->gold += (store->herocost[hero->GetheroType()]) * pow(3, (hero->getLevel()) - 1);
+						store->updateUI();
 
-							//英雄消失
-							hero->Setexist(0);  //使该英雄无效
-							hero->setVisible(false);
-							if (hero->isInBoard()) {
-								seat1.seats[hero->GetIndex()].Removesprite();
-							}
-							else {
-								seat2.seats[hero->GetIndex()].Removesprite();
-							}
-							break;
+						//英雄消失
+						if (hero->isInBoard()) {
+							seat1.seats[hero->GetIndex()].Removesprite();
 						}
+						else {
+							seat2.seats[hero->GetIndex()].Removesprite();
+						}
+						allMyHeroes.eraseObject(hero);
+						hero->removeFromParent();
+						break;
 					}
 				}
 			}
@@ -425,7 +421,42 @@ bool playerScene::init() {
 		}
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(roleMoveListener, this);
-	
-	
 	return 1;
+}
+
+void playerScene::ShowHeroes(int IsMine) {
+	if (IsMine) {
+		for (Hero* hero : allMyHeroes) {
+			if (hero->isInBoard()) {  //在战场上
+				hero->setPosition(seat1.seats[hero->GetIndex()].x + 70, seat1.seats[hero->GetIndex()].y + 50);
+			}
+			else {  //在备战席上
+				hero->setPosition(seat2.seats[hero->GetIndex()].x + 70, seat2.seats[hero->GetIndex()].y + 50);
+			}
+			hero->setVisible(true);
+		}
+	}
+	else {
+		for (Hero* hero : allEnemyHeroes) {
+			if (hero->isInBoard()) {  //在战场上
+				hero->setPosition(seat3.seats[hero->GetIndex()].x + 70, seat3.seats[hero->GetIndex()].y + 50);
+			}
+			else {  //在备战席上
+				hero->setPosition(seat4.seats[hero->GetIndex()].x + 70, seat4.seats[hero->GetIndex()].y + 50);
+			}
+			hero->setVisible(true);
+		}
+	}
+}
+void playerScene::CoverHeroes(int IsMine) {
+	if (IsMine) {
+		for (Hero* hero : allMyHeroes) {
+			hero->setVisible(false);
+		}
+	}
+	else {
+		for (Hero* hero : allEnemyHeroes) {
+			hero->setVisible(false);
+		}
+	}
 }

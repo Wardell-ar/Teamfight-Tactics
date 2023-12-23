@@ -18,18 +18,14 @@ USING_NS_CC;
 */
 class playerScene : public Scene
 {
-	
-	
-
 public:
 
 	storeLayer* store;
 	
-
-
-	static Scene* createScene();
+	static playerScene* createScene();
 	virtual bool init();
 	CREATE_FUNC(playerScene);
-	
+	void ShowHeroes(int IsMine);
+	void CoverHeroes(int IsMine);
 };
 

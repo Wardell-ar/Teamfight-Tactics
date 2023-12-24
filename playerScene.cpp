@@ -50,21 +50,21 @@ bool playerScene::init() {
 	background->setPosition(955, 540);
 
 
-	//英雄攻击测试
-	
-	auto hero1 = Hero::createHero(1, Vec2(700, 400), 1);
+	// 我方的初始英雄
+	auto hero1 = Hero::createHero(2, Vec2(seat1.seats[3].x + 70, seat1.seats[3].y + 50), 1);
+	seat1.seats[3].state = 1;
 	this->addChild(hero1, 2);
 	hero1->enterBoard();
+	hero1->setIndex(3);
 
-	auto hero2 = Hero::createHero(1, Vec2(700, 800), 2);
+	auto hero2 = Hero::createHero(1, Vec2(seat3.seats[3].x + 70, seat3.seats[3].y + 50), 2);
+	seat3.seats[3].state = 1;
 	this->addChild(hero2, 2);
 	hero2->enterBoard();
-	startTimer();
-	
-	/*
-	hero1->attack(hero2);
-	hero2->attack(hero1);
-	*/
+	hero2->setIndex(3);
+	hero2->setVisible(false);
+	//startattack();
+
 
 
 	/*英雄位置移动*/
@@ -299,7 +299,32 @@ bool playerScene::init() {
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(changePosListener, this);
 
+	//每一帧更新小小英雄的血条和蓝条
+	this->schedule([this](float dt) {
+		//更新我方英雄血量和蓝量
+		for (Hero* hero : allMyHeroes) {
+			hero->updatebloodandmagic();
+		}
+        //更新敌方英雄的血量和蓝量
+	    for (Hero* hero : allEnemyHeroes) {
+		    hero->updatebloodandmagic();
+	    }
+	}, "updateherobar");
 
+
+	//进度条设置
+	progress0 = Sprite::create("progress0.png");
+	progress1 = ProgressTimer::create(Sprite::create("progress1.png"));
+	progress0->setPosition(955, 1000);
+	progress1->setPosition(955, 1000);
+	this->addChild(progress0, 5);
+	this->addChild(progress1, 6);
+	progress1->setType(ProgressTimer::Type::BAR);
+	progress1->setMidpoint(Vec2(0, 0.5)); // 从左到右
+	progress1->setBarChangeRate(Vec2(1, 0)); // 沿水平方向改变
+	
+	//游戏主循环的回调函数
+	this->schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
 
 
 	/*我方位置图标的显示(仅显示我方)*/
@@ -318,8 +343,6 @@ bool playerScene::init() {
 		MySeat[i + 5]->setPosition(seat2.seats[i].x + 70, seat2.seats[i].y + 50);
 		this->addChild(MySeat[i + 5], 1);
 	}
-
-
 
 
 	//英雄售卖——通过鼠标点击右键来实现
@@ -417,7 +440,13 @@ void playerScene::ShowHeroes(int IsMine) {
 			else {  //在备战席上
 				hero->setPosition(seat2.seats[hero->GetIndex()].x + 70, seat2.seats[hero->GetIndex()].y + 50);
 			}
+			hero->setBlood(hero->getMaxBlood());
+			hero->setMagic(0);
+			hero->setColor(Color3B::WHITE);
 			hero->setVisible(true);
+			if (hero->isDead()) {
+				hero->setDie(0);
+			}
 		}
 	}
 	else {
@@ -428,7 +457,13 @@ void playerScene::ShowHeroes(int IsMine) {
 			else {  //在备战席上
 				hero->setPosition(seat4.seats[hero->GetIndex()].x + 70, seat4.seats[hero->GetIndex()].y + 50);
 			}
+			hero->setBlood(hero->getMaxBlood());
+			hero->setMagic(0);
+			hero->setColor(Color3B::WHITE);
 			hero->setVisible(true);
+			if (hero->isDead()) {
+				hero->setDie(0);
+			}
 		}
 	}
 }

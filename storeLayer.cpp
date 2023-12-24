@@ -114,7 +114,7 @@ void storeLayer::createHeroButtons() {
     if (heroButton1 != nullptr) {
         heroButton1->removeFromParent();
     }
-    int randnum = rand() % 5 + 1;
+    int randnum = rand() % 6 + 1;
     switch (randnum) {
         case 1:
             heroButton1 = ui::Button::create("storehero1.png");
@@ -131,6 +131,9 @@ void storeLayer::createHeroButtons() {
         case 5:
             heroButton1 = ui::Button::create("storehero5.png");
             break;
+        case 6:
+            heroButton1 = ui::Button::create("storehero6.png");
+            break;
     }
     heroButton1->setPosition(Point(500, 100));
     heroButton1->setScale(0.4);
@@ -142,7 +145,7 @@ void storeLayer::createHeroButtons() {
     if (heroButton2 != nullptr) {
         heroButton2->removeFromParent();
     }
-    randnum = rand() % 5 + 1;
+    randnum = rand() % 6 + 1;
     switch (randnum) {
         case 1:
             heroButton2 = ui::Button::create("storehero1.png");
@@ -159,6 +162,9 @@ void storeLayer::createHeroButtons() {
         case 5:
             heroButton2 = ui::Button::create("storehero5.png");
             break;
+        case 6:
+            heroButton2 = ui::Button::create("storehero6.png");
+            break;
     }
     heroButton2->setPosition(Point(500 + 128, 100));
     heroButton2->setScale(0.4);
@@ -170,7 +176,7 @@ void storeLayer::createHeroButtons() {
     if (heroButton3 != nullptr) {
         heroButton3->removeFromParent();
     }
-    randnum = rand() % 5 + 1;
+    randnum = rand() % 6 + 1;
     switch (randnum) {
         case 1:
             heroButton3 = ui::Button::create("storehero1.png");
@@ -187,6 +193,9 @@ void storeLayer::createHeroButtons() {
         case 5:
             heroButton3 = ui::Button::create("storehero5.png");
             break;
+        case 6:
+            heroButton3 = ui::Button::create("storehero6.png");
+            break;
     }
     heroButton3->setPosition(Point(500 + 128 * 2, 100));
     heroButton3->setScale(0.4);
@@ -198,7 +207,7 @@ void storeLayer::createHeroButtons() {
     if (heroButton4 != nullptr) {
         heroButton4->removeFromParent();
     }
-    randnum = rand() % 5 + 1;
+    randnum = rand() % 6 + 1;
     switch (randnum) {
         case 1:
             heroButton4 = ui::Button::create("storehero1.png");
@@ -215,6 +224,9 @@ void storeLayer::createHeroButtons() {
         case 5:
             heroButton4 = ui::Button::create("storehero5.png");
             break;
+        case 6:
+            heroButton4 = ui::Button::create("storehero6.png");
+            break;
     }
     heroButton4->setPosition(Point(500 + 128 * 3, 100));
     heroButton4->setScale(0.4);
@@ -226,7 +238,7 @@ void storeLayer::createHeroButtons() {
     if (heroButton5 != nullptr) {
         heroButton5->removeFromParent();
     }
-    randnum = rand() % 5 + 1;
+    randnum = rand() % 6 + 1;
     switch (randnum) {
         case 1:
             heroButton5 = ui::Button::create("storehero1.png");
@@ -242,6 +254,9 @@ void storeLayer::createHeroButtons() {
             break;
         case 5:
             heroButton5 = ui::Button::create("storehero5.png");
+            break;
+        case 6:
+            heroButton5 = ui::Button::create("storehero6.png");
             break;
     }
     heroButton5->setPosition(Point(500 + 128 * 4, 100));

@@ -19,7 +19,7 @@ class storeLayer : public Layer
 {
 public:
     int herotype[5];
-    int herocost[ALL_TYPE + 1] = { -1,2,2,2,2,2 };
+    int herocost[ALL_TYPE + 1] = { -1,1,5,3,2,2,3 };
     static storeLayer* createLayer();
     CREATE_FUNC(storeLayer);
 

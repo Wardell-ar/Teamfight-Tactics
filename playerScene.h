@@ -16,6 +16,12 @@ class playerScene : public Scene
 public:
 
 	storeLayer* store;
+    Sprite* progress0;
+    ProgressTimer* progress1;
+    Sequence* to1;
+    Sequence* gameprogress;
+    float totalTime = 20.0f;
+    float currentTime = 0.0f;
 	
 	static playerScene* createScene();
 	virtual bool init();
@@ -23,15 +29,15 @@ public:
 	void ShowHeroes(int IsMine);
 	void CoverHeroes(int IsMine);
 
+
     // 在需要的时候手动启动定时器
-    void startTimer() {
-        schedule(CC_SCHEDULE_SELECTOR(playerScene::attack), 2.0f);  // 每隔1秒执行一次checkCondition函数
+    void startattack() {
+        schedule(CC_SCHEDULE_SELECTOR(playerScene::attack), 2.0f);
     }
+
     // 攻击方法
     void attack(float dt)
     {
-        fight = 1;
-
         bool attacked = 0;
 
         //我方攻击动作
@@ -88,9 +94,54 @@ public:
         }
         if (!attacked) {
             unschedule(CC_SCHEDULE_SELECTOR(playerScene::attack));
-
             fight = 0;
+            schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
         }
     }
+
+    void startGame(float dt) {
+        if (fight == 0) {  //退出战斗，轮到休息环节
+            unschedule(CC_SCHEDULE_SELECTOR(playerScene::startGame));  //停止外层循环回调
+
+            //重现我方英雄
+            ShowHeroes(1);
+
+            //撤去敌方英雄
+            CoverHeroes(0);
+
+            //进度条开始
+            progress0->setVisible(true);
+            progress1->setVisible(true);
+            // 设置定时器更新频率（这里假设以每帧更新）
+            this->schedule([this](float dt) {
+                currentTime += dt;
+            // 计算当前进度（百分比）
+            float progressPercentage = (currentTime / totalTime) * 100.0f;
+            // 更新进度条
+            progress1->setPercentage(progressPercentage);
+            // 判断是否达到定时时间，如果达到则取消定时器或进行其他操作
+
+            if (currentTime >= totalTime) {  //休息时间结束
+                this->unschedule("progress");
+                currentTime = 0.0f;   //重置
+                fight = 1;
+                progress0->setVisible(false);
+                progress1->setVisible(false);
+                schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
+            }
+                }, "progress");
+        }
+        else {
+            unschedule(CC_SCHEDULE_SELECTOR(playerScene::startGame));  //停止外层回调
+
+            //显示敌方英雄
+            ShowHeroes(0);
+
+            //开始对打
+            startattack();
+        }
+    }
+
+    
 };
 

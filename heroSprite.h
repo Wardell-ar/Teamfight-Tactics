@@ -1,12 +1,14 @@
 #pragma once
 #include"cocos2d.h"
 USING_NS_CC;
-#define ALL_TYPE 5
+#define ALL_TYPE 6
 
 
 class Hero :public Sprite {
 private:
     int blood;//血量
+    int max_blood;
+    int each_magic;
     int magic;//蓝量
     int level;//星级(1-3)
     int camp;//1表示我方阵营，0表示敌方阵营
@@ -17,6 +19,8 @@ private:
     int seatIndex = -1;   //seat的下标
     int Die = 0;   //1表示挂了
     int click = 0;   //用于点击判定
+    ProgressTimer* healthBar;//血条类
+    ProgressTimer* magicBar;//蓝条类
 public:
     Hero();
     // 创建不同类型的英雄
@@ -96,4 +100,22 @@ public:
     int isDead() {
         return Die;
     }
+
+    void setDie(int d) {
+        Die = d;
+    }
+
+    int getMaxBlood() {
+        return max_blood;
+    }
+
+    void setBlood(int b) {
+        blood = b;
+    }
+
+    void setMagic(int m) {
+        magic = m;
+    }
+
+    void updatebloodandmagic();
 };

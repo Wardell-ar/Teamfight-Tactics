@@ -14,12 +14,13 @@ USING_NS_CC;
 
 class playerroleLayer : public Layer
 {
-
-
 public:
+	int camp = 1;  // 1代表我方  0代表敌方
+	float max_blood = 10;
+	float cur_blood = 10;
+	ProgressTimer* healthBar;//血条类
+	Vec2 cur_position;
 
-	static Layer* createLayer();
-	virtual bool init();
-	CREATE_FUNC(playerroleLayer);
+	static playerroleLayer* createLayer(int c);
 };
 

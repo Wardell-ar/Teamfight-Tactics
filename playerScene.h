@@ -14,7 +14,8 @@ extern int fight;
 class playerScene : public Scene
 {
 public:
-
+    playerroleLayer* myrole;
+    playerroleLayer* enemyrole;
 	storeLayer* store;
     Sprite* progress0;
     ProgressTimer* progress1;
@@ -99,7 +100,8 @@ public:
         }
     }
 
-    void startGame(float dt) {
+    //通过检测fight全局变量来实现休息环节与战斗环节的交替
+    void startGame(float dt) {  
         if (fight == 0) {  //退出战斗，轮到休息环节
             unschedule(CC_SCHEDULE_SELECTOR(playerScene::startGame));  //停止外层循环回调
 
@@ -141,7 +143,5 @@ public:
             startattack();
         }
     }
-
-    
 };
 

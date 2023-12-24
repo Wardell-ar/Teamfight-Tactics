@@ -44,26 +44,25 @@ bool playerScene::init() {
 		return 0;
 	}
 
+
+
 	//背景设置
 	auto background = Sprite::create("playerSceneBackground.png");
 	this->addChild(background, 0);
 	background->setPosition(955, 540);
 
 
+
+
+
 	// 我方的初始英雄
-	auto hero1 = Hero::createHero(2, Vec2(seat1.seats[3].x + 70, seat1.seats[3].y + 50), 1);
-	seat1.seats[3].state = 1;
+	auto hero1 = Hero::createHero(1, Vec2(seat1.seats[0].x + 70, seat1.seats[0].y + 50), 1);
+	seat1.seats[0].state = 1;
 	this->addChild(hero1, 2);
 	hero1->enterBoard();
-	hero1->setIndex(3);
+	hero1->setIndex(0);
 
-	auto hero2 = Hero::createHero(1, Vec2(seat3.seats[3].x + 70, seat3.seats[3].y + 50), 2);
-	seat3.seats[3].state = 1;
-	this->addChild(hero2, 2);
-	hero2->enterBoard();
-	hero2->setIndex(3);
-	hero2->setVisible(false);
-	//startattack();
+
 
 
 
@@ -299,7 +298,11 @@ bool playerScene::init() {
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(changePosListener, this);
 
-	//每一帧更新小小英雄的血条和蓝条
+
+
+
+
+	//每一帧更新英雄的血条和蓝条
 	this->schedule([this](float dt) {
 		//更新我方英雄血量和蓝量
 		for (Hero* hero : allMyHeroes) {
@@ -310,6 +313,28 @@ bool playerScene::init() {
 		    hero->updatebloodandmagic();
 	    }
 	}, "updateherobar");
+
+
+
+
+
+	//每一帧更新小小英雄的血条
+	this->schedule([this](float dt) {
+		float mypercentage = myrole->cur_blood / myrole->max_blood * 100.0f;
+	    float enemypercentage = enemyrole->cur_blood / enemyrole->max_blood * 100.0f;
+		myrole->healthBar->setPercentage(mypercentage);
+		enemyrole->healthBar->setPercentage(enemypercentage);
+		if (mypercentage == 0) {  //我方失败
+			//...切换场景
+		}
+		if (enemypercentage == 0) {  //敌方失败
+			//...切换场景
+		}
+	}, "updaterolebar");
+
+
+
+
 
 
 	//进度条设置
@@ -323,8 +348,15 @@ bool playerScene::init() {
 	progress1->setMidpoint(Vec2(0, 0.5)); // 从左到右
 	progress1->setBarChangeRate(Vec2(1, 0)); // 沿水平方向改变
 	
+
+
+
+
 	//游戏主循环的回调函数
 	this->schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
+
+
+
 
 
 	/*我方位置图标的显示(仅显示我方)*/
@@ -343,6 +375,10 @@ bool playerScene::init() {
 		MySeat[i + 5]->setPosition(seat2.seats[i].x + 70, seat2.seats[i].y + 50);
 		this->addChild(MySeat[i + 5], 1);
 	}
+
+
+
+
 
 
 	//英雄售卖——通过鼠标点击右键来实现
@@ -398,17 +434,33 @@ bool playerScene::init() {
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(sellheroListener, this);
 
+
+
+
+
 	//小小英雄
-	auto playerrole = playerroleLayer::createLayer();  
-	this->addChild(playerrole, 3, ROLETAG);
+	myrole = playerroleLayer::createLayer(1);
+	this->addChild(myrole, 3, ROLETAG);
+	enemyrole= playerroleLayer::createLayer(0);
+	this->addChild(enemyrole, 3);
+
+
+
 
 	//英雄列表
 	auto playerlist = playerlistLayer::createLayer();  
 	this->addChild(playerlist, 4);
 
+
+
+
+
 	//商店，是Scene中的私有成员
 	store = storeLayer::createLayer();   
 	this->addChild(store, 4);
+
+
+
 
 
 	//小小英雄的移动
@@ -418,7 +470,7 @@ bool playerScene::init() {
 		Vec2 pos = background->convertTouchToNodeSpace(t);
 		if (pos.x > 323 && pos.x < 1247 && pos.y>327 && pos.y < 839)  //小小英雄移动范围
 		{
-			auto role = this->getChildByTag(ROLETAG)->getChildByTag(ROLETAG);
+			auto role = this->myrole->getChildByTag(ROLETAG);
 			role->stopAllActions();
 			role->runAction(MoveTo::create(0.3, Vec2(pos.x + 55.25, pos.y + 46.875)));
 			return true;   //事件不再传递给其他监听器
@@ -428,9 +480,23 @@ bool playerScene::init() {
 		}
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(roleMoveListener, this);
+	
+
+
+
+	//检测敌方英雄的移动
+	this->schedule([this](float dt) {
+		enemyrole->getChildByTag(ROLETAG)->stopAllActions();
+	    enemyrole->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3, enemyrole->cur_position));
+	}, "enemymove");
+	
+
+
+	
 	return 1;
 }
 
+//显示所有英雄
 void playerScene::ShowHeroes(int IsMine) {
 	if (IsMine) {
 		for (Hero* hero : allMyHeroes) {
@@ -440,16 +506,51 @@ void playerScene::ShowHeroes(int IsMine) {
 			else {  //在备战席上
 				hero->setPosition(seat2.seats[hero->GetIndex()].x + 70, seat2.seats[hero->GetIndex()].y + 50);
 			}
-			hero->setBlood(hero->getMaxBlood());
-			hero->setMagic(0);
-			hero->setColor(Color3B::WHITE);
-			hero->setVisible(true);
-			if (hero->isDead()) {
+			hero->setBlood(hero->getMaxBlood());   //设置初始血量、满血
+			hero->setMagic(hero->getStartMagic());  //设置初始蓝量
+			hero->setColor(Color3B::WHITE);  //恢复颜色（死亡后会改变颜色）
+			hero->setVisible(true);   //重新显示
+			if (hero->isDead()) {   //重置Die标志
 				hero->setDie(0);
 			}
 		}
 	}
-	else {
+	else {  //用于单机模式，随机生成英雄到战场（单机模式人机不放备战席、不买五费英雄）
+		//删除原本的英雄
+		Vector<Hero*>heroToDelete;
+		for (Hero* hero : allEnemyHeroes) {
+			heroToDelete.pushBack(hero);
+		}
+		for (Hero* hero : heroToDelete) {
+			allEnemyHeroes.eraseObject(hero);
+			hero->removeFromParent();
+		}
+
+		//重置seat3的state为0
+		for (int i = 0; i < 5; i++) {
+			seat3.seats[i].state = 0;
+		}
+
+		//遍历我方战场上的英雄，根据其位置、星级来随机生成敌方英雄放在Vector中
+		//position参数随意，只要把index、inBoard值设对就好，然后设置不可见（显示板块在下面）
+		//对应的位置seat3的state要设置为1
+		int enemyPriority[5] = { 1,4,5,3,6 };  //随机生成英雄类型的优先级
+		int i = 0;  //循环变量
+		for (Hero* myhero : allMyHeroes) {
+			if (myhero->isInBoard()) {
+				auto enemy = Hero::createHero(enemyPriority[i], Vec2(0, 0), 0);
+				enemy->setIndex(myhero->GetIndex());    //设置下标
+				enemy->enterBoard();    //上战场
+				this->addChild(enemy, 2);   //加入场景
+				enemy->setVisible(false);   //设置不可见
+				seat3.seats[myhero->GetIndex()].state = 1;   //位置设定
+				enemy->update(myhero->GetIndex());  //设置为相同的星级
+				i++;
+			}
+		}
+
+
+		//通过Vector容器来显示敌方英雄
 		for (Hero* hero : allEnemyHeroes) {
 			if (hero->isInBoard()) {  //在战场上
 				hero->setPosition(seat3.seats[hero->GetIndex()].x + 70, seat3.seats[hero->GetIndex()].y + 50);
@@ -458,7 +559,7 @@ void playerScene::ShowHeroes(int IsMine) {
 				hero->setPosition(seat4.seats[hero->GetIndex()].x + 70, seat4.seats[hero->GetIndex()].y + 50);
 			}
 			hero->setBlood(hero->getMaxBlood());
-			hero->setMagic(0);
+			hero->setMagic(hero->getStartMagic());
 			hero->setColor(Color3B::WHITE);
 			hero->setVisible(true);
 			if (hero->isDead()) {
@@ -467,6 +568,10 @@ void playerScene::ShowHeroes(int IsMine) {
 		}
 	}
 }
+
+
+
+//覆盖所有英雄
 void playerScene::CoverHeroes(int IsMine) {
 	if (IsMine) {
 		for (Hero* hero : allMyHeroes) {

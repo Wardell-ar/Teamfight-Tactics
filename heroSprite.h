@@ -6,15 +6,18 @@ USING_NS_CC;
 
 class Hero :public Sprite {
 private:
-    int blood;//血量
-    int max_blood;
-    int each_magic;
+    float blood;//血量
+    float max_blood;
+    int each_magic;//每次增加蓝量
+    int start_magic;//初始magic
     int magic;//蓝量
     int level;//星级(1-3)
     int camp;//1表示我方阵营，0表示敌方阵营
     int heroType;//英雄种类(1-ALL_TYPE)
     int weapon;//攻击方式(1为远程，0为近战）
-    int power;//攻击力
+    int power;//普攻伤害
+    int skill;//技能伤害
+
     bool inBoard = 0;//标记是否位于棋盘上（1表示在棋盘上，0表示在备战席）
     int seatIndex = -1;   //seat的下标
     int Die = 0;   //1表示挂了
@@ -34,7 +37,7 @@ public:
     int getLevel() const;
     void upgrade(int newLevel);
     int getType()const;
-   
+
 
     // 进入棋盘
     void enterBoard();
@@ -44,7 +47,7 @@ public:
 
     // 是否处于棋盘
     bool isInBoard() const;
-    
+
     //获取近战还是远程
     int getWeapon() const;
 
@@ -118,4 +121,8 @@ public:
     }
 
     void updatebloodandmagic();
+
+    int getStartMagic() {
+        return start_magic;
+    }
 };

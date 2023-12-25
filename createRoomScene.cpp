@@ -140,6 +140,7 @@ bool createRoomScene::init() {
     menu->setPosition(0, 0);
     this->addChild(menu, 1);
     
+    //客户端连接
     connectToServer();
 
     /*

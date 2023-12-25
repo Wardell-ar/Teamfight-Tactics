@@ -117,8 +117,6 @@ public:
                     cout << "Error sending message: " << e.what() << endl;
                 }
             }
-            server.close(b[0], websocketpp::close::status::normal, "Message sent");
-            server.close(b[1], websocketpp::close::status::normal, "Message sent");
             a.clear();
             connections_.clear();
             b.clear();
@@ -197,6 +195,7 @@ int main() {
         // ÉèÖÃWebSocket++·şÎñÆ÷
         handler.server.init_asio();
 
+        
         handler.server.set_access_channels(websocketpp::log::alevel::all);
         handler.server.clear_access_channels(websocketpp::log::alevel::frame_payload);
 

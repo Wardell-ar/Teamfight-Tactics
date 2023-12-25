@@ -103,7 +103,7 @@ Hero* Hero::createHero(int heroType, const Vec2& position, int camp)
                 hero->max_blood = 10000;
                 hero->blood = 10000;
                 hero->each_magic = 50;
-                hero->power = 17;
+                hero->power = 10000;
                 hero->weapon = 1;
                 hero->heroType = 1;
 
@@ -479,7 +479,7 @@ void Hero::attack(Hero* target)
                 if (magic >= 100) {
                     Hero* friendTarget;
                     Vec2 friendPosition;
-                    int lowestBlood = 999;
+                    int lowestBlood = 9999999;
                     for (Hero* friendHero : allMyHeroes) {
                         if (friendHero->isInBoard() && !friendHero->isDead()) {
                             if (friendHero->getBlood() < lowestBlood) {

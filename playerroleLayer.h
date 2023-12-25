@@ -22,5 +22,6 @@ public:
 	Vec2 cur_position;
 
 	static playerroleLayer* createLayer(int c);
+	void attack(playerroleLayer* target);   //小小英雄发起进攻
 };
 

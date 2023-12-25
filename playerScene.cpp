@@ -1,6 +1,7 @@
 #include "playerScene.h"
 #include"heroSprite.h"
 #include<vector>
+#include"endScene.h"
 USING_NS_CC;
 
 #define STORETAG   462
@@ -30,9 +31,11 @@ preparationSeat seat2(1);   //备战席位置
 
 chessboardSeat seat3(0);   //敌方棋盘位置
 preparationSeat seat4(0);   //敌方备战席位置
+
 extern Vector<Hero*> allMyHeroes;//我方所有英雄
 extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
-extern int fight;
+
+extern int fight;  //全局战况
 
 playerScene* playerScene::createScene() {
 	return playerScene::create();
@@ -324,11 +327,32 @@ bool playerScene::init() {
 	    float enemypercentage = enemyrole->cur_blood / enemyrole->max_blood * 100.0f;
 		myrole->healthBar->setPercentage(mypercentage);
 		enemyrole->healthBar->setPercentage(enemypercentage);
-		if (mypercentage == 0) {  //我方失败
-			//...切换场景
+		if (mypercentage == 0 && enemypercentage != 0) {  //我方失败
+			auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+			auto callback = CallFunc::create([]() {
+				auto endscene = endScene::createScene(0);
+			    Director::getInstance()->replaceScene(endscene);
+			});
+			auto sequence = Sequence::create(delayAction, callback, nullptr);
+			this->runAction(sequence);
 		}
-		if (enemypercentage == 0) {  //敌方失败
-			//...切换场景
+		if (enemypercentage == 0 && mypercentage != 0) {  //敌方失败
+			auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+			auto callback = CallFunc::create([]() {
+				auto endscene = endScene::createScene(1);
+			    Director::getInstance()->replaceScene(endscene);
+			});
+			auto sequence = Sequence::create(delayAction, callback, nullptr);
+			this->runAction(sequence);
+		}
+		if (mypercentage == 0 && enemypercentage == 0) {  //平局
+			auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+			auto callback = CallFunc::create([]() {
+				auto endscene = endScene::createScene(2);
+			    Director::getInstance()->replaceScene(endscene);
+			});
+			auto sequence = Sequence::create(delayAction, callback, nullptr);
+			this->runAction(sequence);
 		}
 	}, "updaterolebar");
 
@@ -446,7 +470,6 @@ bool playerScene::init() {
 
 
 
-
 	//英雄列表
 	auto playerlist = playerlistLayer::createLayer();  
 	this->addChild(playerlist, 4);
@@ -470,6 +493,7 @@ bool playerScene::init() {
 		Vec2 pos = background->convertTouchToNodeSpace(t);
 		if (pos.x > 323 && pos.x < 1247 && pos.y>327 && pos.y < 839)  //小小英雄移动范围
 		{
+			myrole->cur_position = Vec2(pos.x + 70, pos.y + 50);
 			auto role = this->myrole->getChildByTag(ROLETAG);
 			role->stopAllActions();
 			role->runAction(MoveTo::create(0.3, Vec2(pos.x + 55.25, pos.y + 46.875)));

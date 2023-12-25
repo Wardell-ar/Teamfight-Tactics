@@ -21,7 +21,7 @@ public:
     ProgressTimer* progress1;
     Sequence* to1;
     Sequence* gameprogress;
-    float totalTime = 20.0f;
+    float totalTime = 10.0f;
     float currentTime = 0.0f;
 	
 	static playerScene* createScene();
@@ -96,6 +96,26 @@ public:
         if (!attacked) {
             unschedule(CC_SCHEDULE_SELECTOR(playerScene::attack));
             fight = 0;
+            //Ð¡Ð¡Ó¢ÐÛµÄ¹¥»÷
+            int countUnDead = 0;
+            for (Hero* hero : allEnemyHeroes) {
+                if (hero->isInBoard() && !hero->isDead()) {
+                    countUnDead++;
+                }
+            }
+            if (countUnDead == 0) {
+                myrole->attack(enemyrole);
+            }
+
+            countUnDead = 0;
+            for (Hero* hero : allMyHeroes) {
+                if (hero->isInBoard() && !hero->isDead()) {
+                    countUnDead++;
+                }
+            }
+            if (countUnDead == 0) {
+                enemyrole->attack(myrole);
+            }
             schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
         }
     }

@@ -1,6 +1,7 @@
 #include "playerroleLayer.h"
 
 
+// 创建小小英雄Layer
 playerroleLayer* playerroleLayer::createLayer(int c) {
 	playerroleLayer* role = new playerroleLayer;
 	if (role) {  //如果创建成功
@@ -51,13 +52,29 @@ playerroleLayer* playerroleLayer::createLayer(int c) {
 			// 设置血条初始进度
 			role->healthBar->setPercentage(100);  //满血
 		}
-
-
-
-
 		return role;
 	}
 
 	CC_SAFE_DELETE(role);
 	return nullptr;
+}
+
+// 进攻
+void playerroleLayer::attack(playerroleLayer* target) {
+	auto arrow = Sprite::create("role_arrow.png");
+	arrow->setScale(0.15);
+	this->getParent()->addChild(arrow, 4);
+	arrow->setPosition(cur_position);
+	auto moveToTarget = MoveTo::create(1.0f, target->cur_position);
+	auto bomb = CallFunc::create([arrow,target]() {
+		arrow->setTexture("role_bomb.png");
+	    arrow->setScale(0.15);
+		target->cur_blood--;
+	});
+	auto scale = ScaleTo::create(0.5f, 0.5f);
+	auto coverArrow = CallFunc::create([arrow]() {
+		arrow->removeFromParentAndCleanup(true);
+	});
+	auto sequence = Sequence::create(moveToTarget, bomb, scale, coverArrow, nullptr);
+	arrow->runAction(sequence);
 }

@@ -9,14 +9,18 @@ using namespace ui;
 using namespace CocosDenshion;
 //CocosGUI包含了UIButton、UIImage、Textture
 
-Scene* GameSettings::createScene() {
+Layer* GameSettings::createLayer() {
 	return GameSettings::create();   //直接调用create方法
 }
 
 bool GameSettings::init()
 {
-	if (!Scene::init())
+	if (!Layer::init())
 		return false;
+
+	auto Background = Sprite::create("settingbackground.png");
+	Background->setPosition(955, 540);
+	this->addChild(Background, 100);  //添加到挂件
 
 	//播放按钮
 	Size visibleSize = Director::getInstance()->getVisibleSize();
@@ -38,36 +42,23 @@ bool GameSettings::init()
 		itembgm->setSelectedIndex(0);
 	}
 	auto menu = Menu::create(itembgm, NULL);
-	menu->setPosition(955, 700);
-	this->addChild(menu);
+	menu->setPosition(955, 650);
+	this->addChild(menu,101);
 
 
-	//返回按钮
+
+	//投降
 	auto _button = Button::create();
-	_button->setTitleText("Back");
+	_button->setTitleText("Exit");
 	_button->setTitleFontSize(100);
 	_button->setPositionX(base.x);
 	_button->setPositionY(base.y + _button->getContentSize().height * 0.5 - 150);
 	_button->addClickEventListener([](Ref* sender)
 		{
-			//返回
-			Director::getInstance()->popScene();
-		});
-	this->addChild(_button);
-
-
-	//投降
-	_button = Button::create();
-	_button->setTitleText("Exit");
-	_button->setTitleFontSize(100);
-	_button->setPositionX(base.x);
-	_button->setPositionY(base.y + _button->getContentSize().height * 0.5 - 350);
-	_button->addClickEventListener([](Ref* sender)
-		{
 			//退出游戏
 			Director::getInstance()->end();
 		});
-	this->addChild(_button);
+	this->addChild(_button, 101);
 
 	return true;
 }
@@ -85,6 +76,7 @@ void GameSettings::onSoundControl(Ref* pSender) {
 		SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 	}
 }
+
 
 
 /*

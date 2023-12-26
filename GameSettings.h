@@ -3,12 +3,14 @@
 USING_NS_CC;
 
 
-class GameSettings :public Scene
+class GameSettings :public Layer
 {
 public:
-	static Scene* createScene();
+	static Layer* createLayer();
 	CREATE_FUNC(GameSettings);
 	virtual bool init();
+
+	
 
 	void onSoundControl(Ref* pSender);//“Ù¿÷ø™πÿ
 };

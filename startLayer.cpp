@@ -1,5 +1,6 @@
 #include "startLayer.h"
 #include"helpScene.h"
+#include"playerScene.h"
 USING_NS_CC;
 
 Layer* startLayer::createLayer() {
@@ -14,7 +15,7 @@ bool startLayer::init() {
 
 	//背景面板
 	auto Background = Sprite::create("startSceneBackground.png");
-	Background->setPosition(960, 540);
+	Background->setPosition(955, 540);
 	this->addChild(Background, 0);  //添加到挂件
 
 
@@ -61,7 +62,8 @@ bool startLayer::init() {
 /* 开始游戏 */
 void startLayer::callbackofbutton1(Ref* pSender)   //开始游戏
 {
-	Director::getInstance()->end();   //退出
+	auto scene = playerScene::createScene();
+	Director::getInstance()->replaceScene(scene);
 }
 
 /* 创建房间 */

@@ -1,4 +1,4 @@
-#include "playerScene.h"
+#include "networkScene.h"
 #include"heroSprite.h"
 #include<vector>
 #include"endScene.h"
@@ -6,7 +6,7 @@ USING_NS_CC;
 
 #define STORETAG   462
 
-std::vector<Sprite*>MySeat;  //大小为14
+extern std::vector<Sprite*>MySeat;  //大小为14
 /*
   0——战斗席0
   1——战斗席1
@@ -25,24 +25,24 @@ std::vector<Sprite*>MySeat;  //大小为14
   13——备战席8
 */
 
-int enemyType = 1;  // 面对的第一个人机为enemyrole1
 
-chessboardSeat seat1(1);   //棋盘位置
-preparationSeat seat2(1);   //备战席位置
+extern chessboardSeat seat1;   //棋盘位置
+extern preparationSeat seat2;   //备战席位置
 
-chessboardSeat seat3(0);   //敌方棋盘位置
-preparationSeat seat4(0);   //敌方备战席位置
+extern chessboardSeat seat3;   //敌方棋盘位置
+extern preparationSeat seat4;   //敌方备战席位置
 
 extern Vector<Hero*> allMyHeroes;//我方所有英雄
 extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 
 extern int fight;  //全局战况
 
-playerScene* playerScene::createScene() {
-	return playerScene::create();
+networkScene* networkScene::createScene() {
+	return networkScene::create();
 }
 
-bool playerScene::init() {
+
+bool networkScene::init() {
 
 	if (!Scene::create()) {
 		return 0;
@@ -73,7 +73,7 @@ bool playerScene::init() {
 	/*英雄位置移动*/
 	auto changePosListener = EventListenerTouchOneByOne::create();
 	//事件吞没
-	changePosListener->setSwallowTouches(true);   
+	changePosListener->setSwallowTouches(true);
 	//英雄点击判定
 	changePosListener->onTouchBegan = [this](Touch* t, Event* e)->bool {
 		//获取点击的位置
@@ -126,7 +126,7 @@ bool playerScene::init() {
 				Rect spriteBoundingBox = Rect(0, 0, MySeat[i]->getContentSize().width, MySeat[i]->getContentSize().height);
 				if (spriteBoundingBox.containsPoint(clickEnd)) {
 					int index = i - 5;  //备战席位置下标
-					
+
 					//判断该位置是否为空
 					if (seat2.seats[index].state == 0) {  //空位置
 						for (Hero* hero : allMyHeroes) {
@@ -193,7 +193,7 @@ bool playerScene::init() {
 									else {   //原位置在备战席
 										seat2.seats[hero->GetIndex()].Removesprite();  //原位置设为空
 									}
-									
+
 									hero->setIndex(index);  //英雄存储新下标
 									hero->setPosition(seat2.seats[index].x + 70, seat2.seats[index].y + 50);
 									seat2.seats[index].Setsprite();
@@ -277,7 +277,7 @@ bool playerScene::init() {
 											hero2->setIndex(hero1->GetIndex());
 											hero1->setIndex(index);
 											hero1->setPosition(seat1.seats[hero1->GetIndex()].x + 70, seat1.seats[hero1->GetIndex()].y + 50);
-											if(!hero1->isInBoard())
+											if (!hero1->isInBoard())
 											{
 												hero2->setPosition(seat2.seats[hero2->GetIndex()].x + 70, seat2.seats[hero2->GetIndex()].y + 50);
 											}
@@ -303,7 +303,7 @@ bool playerScene::init() {
 			if (i == 14) {  //回到原点
 				for (Hero* hero : allMyHeroes) {
 					if (hero->IsClicked()) {
-						if(!hero->isInBoard())
+						if (!hero->isInBoard())
 						{
 							hero->setPosition(seat2.seats[hero->GetIndex()].x + 70, seat2.seats[hero->GetIndex()].y + 50);
 						}
@@ -329,58 +329,51 @@ bool playerScene::init() {
 		for (Hero* hero : allMyHeroes) {
 			hero->updatebloodandmagic();
 		}
-        //更新敌方英雄的血量和蓝量
-	    for (Hero* hero : allEnemyHeroes) {
-		    hero->updatebloodandmagic();
-	    }
-	}, "updateherobar");
+	//更新敌方英雄的血量和蓝量
+	for (Hero* hero : allEnemyHeroes) {
+		hero->updatebloodandmagic();
+	}
+		}, "updateherobar_");
 
 
 
 
 
-	//每一帧更新小小英雄的血条、游戏的退出
+	//每一帧更新小小英雄的血条
 	this->schedule([this](float dt) {
 		float mypercentage = myrole->cur_blood / myrole->max_blood * 100.0f;
-	    myrole->healthBar->setPercentage(mypercentage);
-		if (enemyType == 2)
-		{
-			float enemypercentage = enemyrole1->cur_blood / enemyrole1->max_blood * 100.0f;
-			enemyrole1->healthBar->setPercentage(enemypercentage);
-		}
-		else {
-			float enemypercentage = enemyrole2->cur_blood / enemyrole2->max_blood * 100.0f;
-			enemyrole2->healthBar->setPercentage(enemypercentage);
-		}
+	float enemypercentage = enemyrole->cur_blood / enemyrole->max_blood * 100.0f;
+	myrole->healthBar->setPercentage(mypercentage);
+	enemyrole->healthBar->setPercentage(enemypercentage);
+	if (mypercentage == 0 && enemypercentage != 0) {  //我方失败
+		auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+		auto callback = CallFunc::create([]() {
+			auto endscene = endScene::createScene(0);
+		Director::getInstance()->replaceScene(endscene);
+			});
+		auto sequence = Sequence::create(delayAction, callback, nullptr);
+		this->runAction(sequence);
+	}
+	if (enemypercentage == 0 && mypercentage != 0) {  //敌方失败
+		auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+		auto callback = CallFunc::create([]() {
+			auto endscene = endScene::createScene(1);
+		Director::getInstance()->replaceScene(endscene);
+			});
+		auto sequence = Sequence::create(delayAction, callback, nullptr);
+		this->runAction(sequence);
+	}
+	if (mypercentage == 0 && enemypercentage == 0) {  //平局
+		auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
+		auto callback = CallFunc::create([]() {
+			auto endscene = endScene::createScene(2);
+		Director::getInstance()->replaceScene(endscene);
+			});
+		auto sequence = Sequence::create(delayAction, callback, nullptr);
+		this->runAction(sequence);
+	}
+		}, "updaterolebar_");
 
-		if (myrole->cur_blood == 0 && (enemyrole1->cur_blood != 0 || enemyrole2->cur_blood != 0)) {  //我方失败
-			auto delayAction = DelayTime::create(1.0f); // 1秒钟的延迟时间
-			auto callback = CallFunc::create([]() {
-				auto endscene = endScene::createScene(0);
-			    Director::getInstance()->replaceScene(endscene);
-			});
-			auto sequence = Sequence::create(delayAction, callback, nullptr);
-			this->runAction(sequence);
-		}
-		if (myrole->cur_blood != 0 && enemyrole1->cur_blood == 0 && enemyrole2->cur_blood == 0) {  //敌方失败
-			auto delayAction = DelayTime::create(1.0f); // 1秒钟的延迟时间
-			auto callback = CallFunc::create([]() {
-				auto endscene = endScene::createScene(1);
-			    Director::getInstance()->replaceScene(endscene);
-			});
-			auto sequence = Sequence::create(delayAction, callback, nullptr);
-			this->runAction(sequence);
-		}
-		if (myrole->cur_blood == 0 && enemyrole1->cur_blood == 0 && enemyrole2->cur_blood == 0) {  //平局
-			auto delayAction = DelayTime::create(1.0f); // 1秒钟的延迟时间
-			auto callback = CallFunc::create([]() {
-				auto endscene = endScene::createScene(2);
-			    Director::getInstance()->replaceScene(endscene);
-			});
-			auto sequence = Sequence::create(delayAction, callback, nullptr);
-			this->runAction(sequence);
-		}
-	}, "updaterolebar");
 
 
 
@@ -396,13 +389,13 @@ bool playerScene::init() {
 	progress1->setType(ProgressTimer::Type::BAR);
 	progress1->setMidpoint(Vec2(0, 0.5)); // 从左到右
 	progress1->setBarChangeRate(Vec2(1, 0)); // 沿水平方向改变
-	
+
 
 
 
 
 	//游戏主循环的回调函数
-	this->schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
+	this->schedule(CC_SCHEDULE_SELECTOR(networkScene::startGame), 1.0f);
 
 
 
@@ -460,7 +453,7 @@ bool playerScene::init() {
 					Vec2 touchLocation = Vec2(event->getCursorX(), event->getCursorY());
 					touchLocation = hero->convertToNodeSpace(touchLocation);
 					Rect spriteBoundingBox = Rect(0, 0, hero->getContentSize().width, hero->getContentSize().height);
-					
+
 					if (spriteBoundingBox.containsPoint(touchLocation)) {
 						//商店加钱，要显示刷新
 						store->gold += (store->herocost[hero->GetheroType()]) * pow(3, (hero->getLevel()) - 1);
@@ -490,42 +483,30 @@ bool playerScene::init() {
 	//小小英雄
 	myrole = playerroleLayer::createLayer(0);
 	this->addChild(myrole, 3, ROLETAG);
-	enemyrole1= playerroleLayer::createLayer(1);
-	this->addChild(enemyrole1, 3);
-	enemyrole2 = playerroleLayer::createLayer(2);
-	this->addChild(enemyrole2, 3);
+	enemyrole = playerroleLayer::createLayer(1);
+	this->addChild(enemyrole, 3);
 
 
 
 
-	// 英雄列表按键
-	/* 人机1 */
-	auto enemy11 = Sprite::create("enemy11.png");
-	auto enemy12 = Sprite::create("enemy12.png");
-	auto enemy13 = Sprite::create("enemy13.png");
-	seeEnemy1 = MenuItemSprite::create(enemy11, enemy12, enemy13,
-		CC_CALLBACK_1(playerScene::seeEnemy1_callback, this));
-	auto see_enemy1 = Menu::create(seeEnemy1, NULL);
-	this->addChild(see_enemy1, 4);
-	see_enemy1->setScale(0.7);
-	see_enemy1->setPosition(1400, 700);
-	
-	/* 人机2 */
-	auto enemy21 = Sprite::create("enemy21.png");
-	auto enemy22 = Sprite::create("enemy22.png");
-	auto enemy23 = Sprite::create("enemy23.png");
-	seeEnemy2 = MenuItemSprite::create(enemy21, enemy22, enemy23,
-		CC_CALLBACK_1(playerScene::seeEnemy2_callback, this));
-	auto see_enemy2 = Menu::create(seeEnemy2, NULL);
-	this->addChild(see_enemy2, 4);
-	see_enemy2->setScale(0.7);
-	see_enemy2->setPosition(1400, 600);
+
+	//英雄列表
+	/* 敌方 */
+	auto enemy1 = Sprite::create("enemyplayer1.png");
+	auto enemy2 = Sprite::create("enemyplayer2.png");
+	auto enemy3 = Sprite::create("enemyplayer3.png");
+	seeEnemy = MenuItemSprite::create(enemy1, enemy2, enemy3,
+		CC_CALLBACK_1(networkScene::seeEnemy_callback, this));
+	auto see_enemy = Menu::create(seeEnemy, NULL);
+	this->addChild(see_enemy, 4);
+	see_enemy->setScale(0.7);
+	see_enemy->setPosition(1400, 600);
 
 	/* 返回按键 */
 	auto goback1 = Sprite::create("goback1.png");
 	auto goback2 = Sprite::create("goback2.png");
 	goback = MenuItemSprite::create(goback1, goback2,
-		CC_CALLBACK_1(playerScene::goback_callback, this));
+		CC_CALLBACK_1(networkScene::goback_callback, this));
 	auto go_back = Menu::create(goback, NULL);
 	this->addChild(go_back, 4);
 	go_back->setScale(0.7);
@@ -537,9 +518,8 @@ bool playerScene::init() {
 
 
 	//商店，是Scene中的私有成员
-	store = storeLayer::createLayer();   
+	store = storeLayer::createLayer();
 	this->addChild(store, 4);
-
 
 
 
@@ -563,43 +543,26 @@ bool playerScene::init() {
 		}
 	};
 	Director::getInstance()->getEventDispatcher()->addEventListenerWithSceneGraphPriority(roleMoveListener, this);
-	
 
 
-	// 增加灵动性（人机小小英雄的随机移动）
-	this->schedule(CC_SCHEDULE_SELECTOR(playerScene::enemyMove), 10.0f); // 10秒的时间间隔
+
+
 	//检测敌方英雄的移动
 	this->schedule([this](float dt) {
-		enemyrole1->getChildByTag(ROLETAG)->stopAllActions();
-	enemyrole1->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3f, Vec2(enemyrole1->cur_position.x - 14.75, enemyrole1->cur_position.y - 3.125)));
-	enemyrole2->getChildByTag(ROLETAG)->stopAllActions();
-	enemyrole2->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3f, Vec2(enemyrole2->cur_position.x - 14.75, enemyrole2->cur_position.y - 3.125)));
-		}, 0.3, "enemymove");
-	
+		enemyrole->getChildByTag(ROLETAG)->stopAllActions();
+	enemyrole->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3f, Vec2(enemyrole->cur_position.x - 14.75, enemyrole->cur_position.y - 3.125)));
+		}, 0.3, "enemymove_");
 
 
-	
+
+
 	return 1;
 }
 
-/*
-
-  单机模式三人对战中两个人机的设计：
-  通过在playerScene中的两个敌方小小英雄来表示两个人机
-  其中AllEnemyHeroes是不断刷新的
-  对战采用车轮战
-  每一轮一个人机轮空
-  认定打完两个人机才算完全胜利
-  否则失败
-
-  其中两个人机的英雄的随机生成方法是一样的
-  不一样的是生成的英雄优先级
-
-*/
 
 //显示所有英雄
-void playerScene::ShowHeroes(int tag) {
-	if (tag == 0) {  //显示我方
+void networkScene::ShowHeroes(int IsMine) {
+	if (IsMine) {
 		for (Hero* hero : allMyHeroes) {
 			if (hero->isInBoard()) {  //在战场上
 				hero->setPosition(seat1.seats[hero->GetIndex()].x + 70, seat1.seats[hero->GetIndex()].y + 50);
@@ -616,49 +579,8 @@ void playerScene::ShowHeroes(int tag) {
 			}
 		}
 	}
-	else{  //生成enemyrole1的英雄
-
-		//删除原本的英雄
-		Vector<Hero*>heroToDelete;
-		for (Hero* hero : allEnemyHeroes) {
-			heroToDelete.pushBack(hero);
-		}
-		for (Hero* hero : heroToDelete) {
-			allEnemyHeroes.eraseObject(hero);
-			hero->removeFromParent();
-		}
-
-		//重置seat3的state为0
-		for (int i = 0; i < 5; i++) {
-			seat3.seats[i].state = 0;
-		}
-
-		//遍历我方战场上的英雄，根据其位置、星级来随机生成敌方英雄放在Vector中
-		//position参数随意，只要把index、inBoard值设对就好，然后设置不可见（显示板块在下面）
-		//对应的位置seat3的state要设置为1
-		int enemyPriority1[5] = { 1,4,5,3,6 };  //随机生成英雄类型的优先级
-		int enemyPriority2[5] = { 4,6,1,3,5 };
-		int i = 0;  //循环变量
-		for (Hero* myhero : allMyHeroes) {
-			if (myhero->isInBoard()) {
-				Hero* enemy;
-				if (tag == 1)
-				{
-					enemy = Hero::createHero(enemyPriority1[i], Vec2(0, 0), 0);
-				}
-				else if (tag == 2) {
-					enemy = Hero::createHero(enemyPriority2[i], Vec2(0, 0), 0);
-				}
-				enemy->setIndex(myhero->GetIndex());    //设置下标
-				enemy->enterBoard();    //上战场
-				this->addChild(enemy, 2);   //加入场景
-				enemy->setVisible(false);   //设置不可见
-				seat3.seats[myhero->GetIndex()].state = 1;   //位置设定
-				enemy->upgrade(myhero->getLevel());  //设置为相同的星级
-				i++;
-			}
-		}
-
+	else {  //用于联机模式，直接进行显示
+		
 		//通过Vector容器来显示敌方英雄
 		for (Hero* hero : allEnemyHeroes) {
 			if (hero->isInBoard()) {  //在战场上
@@ -676,14 +598,13 @@ void playerScene::ShowHeroes(int tag) {
 			}
 		}
 	}
-	Hero::mergeHeroes();
 }
 
 
 
 //覆盖所有英雄
-void playerScene::CoverHeroes(int tag) {
-	if (tag == 0) {
+void networkScene::CoverHeroes(int IsMine) {
+	if (IsMine) {
 		for (Hero* hero : allMyHeroes) {
 			hero->setVisible(false);
 		}
@@ -696,54 +617,26 @@ void playerScene::CoverHeroes(int tag) {
 }
 
 
-//观察人机1的棋盘
-void playerScene::seeEnemy1_callback(Ref* pSender) {
-	seeEnemy1->setEnabled(false);  //禁用
-	seeEnemy2->setEnabled(false);  //禁用
+//观察敌方棋盘
+void networkScene::seeEnemy_callback(Ref* pSender) {
+	seeEnemy->setEnabled(false);  //禁用
 	goback->setVisible(true);  //返回按键
 
 	// 显示我方英雄撤去，我方商店撤去，显示敌方1
-	CoverHeroes(0);
+	CoverHeroes(1);
 	store->setVisible(false);
-	ShowHeroes(1);
+	ShowHeroes(0);
 }
 
 
-//观察人机2的棋盘
-void playerScene::seeEnemy2_callback(Ref* pSender) {
-	seeEnemy1->setEnabled(false);  //禁用
-	seeEnemy2->setEnabled(false);  //禁用
-	goback->setVisible(true);  //返回按键
 
-	// 显示我方英雄撤去，我方商店撤去，显示敌方1
-	CoverHeroes(0);
-	store->setVisible(false);
-	ShowHeroes(2);
-}
-
-
-// 返回
-void playerScene::goback_callback(Ref* pSender) {
+//返回
+void networkScene::goback_callback(Ref* pSender) {
 	goback->setVisible(false);
-	seeEnemy1->setEnabled(true);
-	seeEnemy2->setEnabled(true);
+	seeEnemy->setEnabled(true);
 
 	//撤去敌方英雄，显示我方英雄和商店
-	CoverHeroes(1);
-	ShowHeroes(0);
+	CoverHeroes(0);
+	ShowHeroes(1);
 	store->setVisible(true);
-}
-
-
-// 人机的随机移动
-void playerScene::enemyMove(float dt) {
-	int x = rand() % 925 + 323;
-	int y = rand() % 513 + 327;
-	/* 人机1的位置数据变化 */
-	enemyrole1->cur_position = Vec2(x + 70, y + 50);
-	
-	x = rand() % 925 + 323;
-	y = rand() % 513 + 327;
-	/* 人机2的位置数据变化 */
-	enemyrole2->cur_position = Vec2(x + 70, y + 50);
 }

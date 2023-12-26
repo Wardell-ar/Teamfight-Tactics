@@ -8,39 +8,37 @@ USING_NS_CC;
 extern Vector<Hero*> allMyHeroes;//我方所有英雄
 extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 extern int fight;
-extern int enemyType;
 
-class playerScene : public Scene
+
+class networkScene : public Scene
 {
 public:
     playerroleLayer* myrole;
-    playerroleLayer* enemyrole1;  //人机1
-    playerroleLayer* enemyrole2;  //人机2
+    playerroleLayer* enemyrole;
 
-	storeLayer* store;
+    storeLayer* store;
 
     Sprite* progress0;
     ProgressTimer* progress1;
     Sequence* to1;
     Sequence* gameprogress;
 
+    MenuItemSprite* seeEnemy;
+    MenuItemSprite* goback;
+
     float totalTime = 20.0f;
     float currentTime = 0.0f;
 
-    MenuItemSprite* seeEnemy1;
-    MenuItemSprite* seeEnemy2;
-    MenuItemSprite* goback;
-
-	static playerScene* createScene();
-	virtual bool init();
-	CREATE_FUNC(playerScene);
-	void ShowHeroes(int IsMine);
-	void CoverHeroes(int IsMine);
+    static networkScene* createScene();
+    virtual bool init();
+    CREATE_FUNC(networkScene);
+    void ShowHeroes(int IsMine);
+    void CoverHeroes(int IsMine);
 
 
     // 在需要的时候手动启动定时器
     void startattack() {
-        schedule(CC_SCHEDULE_SELECTOR(playerScene::attack), 2.0f);
+        schedule(CC_SCHEDULE_SELECTOR(networkScene::attack), 2.0f);
     }
 
     // 攻击方法
@@ -51,7 +49,7 @@ public:
         //我方攻击动作
         for (auto myHero : allMyHeroes)
         {
-            if (!myHero->isDead()&& myHero->isInBoard()) {
+            if (!myHero->isDead() && myHero->isInBoard()) {
                 Hero* target;
                 bool targetFind = 0;
                 long long nearst_distance = 99999999999;
@@ -76,12 +74,12 @@ public:
         //敌方攻击动作
         for (auto enemyHero : allEnemyHeroes)
         {
-            if (!enemyHero->isDead()&&enemyHero->isInBoard()) {
+            if (!enemyHero->isDead() && enemyHero->isInBoard()) {
                 Hero* target;
                 bool targetFind = 0;
                 long long nearst_distance = 99999999999;
                 for (auto myHero : allMyHeroes) {
-                    if (!myHero->isDead()&&myHero->isInBoard()) {
+                    if (!myHero->isDead() && myHero->isInBoard()) {
                         targetFind = 1;
                         long long x_distance = myHero->getPosition().x - enemyHero->getPosition().x;
                         long long y_distance = myHero->getPosition().y - enemyHero->getPosition().y;
@@ -101,10 +99,9 @@ public:
             }
         }
         if (!attacked) {
-            unschedule(CC_SCHEDULE_SELECTOR(playerScene::attack));
+            unschedule(CC_SCHEDULE_SELECTOR(networkScene::attack));
             fight = 0;
-
-            //小小英雄的攻击、会自动扣血
+            //小小英雄的攻击
             int countUnDead = 0;
             for (Hero* hero : allEnemyHeroes) {
                 if (hero->isInBoard() && !hero->isDead()) {
@@ -112,14 +109,9 @@ public:
                 }
             }
             if (countUnDead == 0) {
-                if (enemyType == 1)
-                {
-                    myrole->attack(enemyrole1);
-                }
-                else {
-                    myrole->attack(enemyrole2);
-                }
+                myrole->attack(enemyrole);
             }
+
             countUnDead = 0;
             for (Hero* hero : allMyHeroes) {
                 if (hero->isInBoard() && !hero->isDead()) {
@@ -127,22 +119,16 @@ public:
                 }
             }
             if (countUnDead == 0) {
-                if (enemyType == 1)
-                {
-                    enemyrole1->attack(myrole);
-                }
-                else {
-                    enemyrole2->attack(myrole);
-                }
+                enemyrole->attack(myrole);
             }
-            schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
+            schedule(CC_SCHEDULE_SELECTOR(networkScene::startGame), 1.0f);
         }
     }
 
     //通过检测fight全局变量来实现休息环节与战斗环节的交替
-    void startGame(float dt) {  
+    void startGame(float dt) {
         if (fight == 0) {  //退出战斗，轮到休息环节
-            unschedule(CC_SCHEDULE_SELECTOR(playerScene::startGame));  //停止外层循环回调
+            unschedule(CC_SCHEDULE_SELECTOR(networkScene::startGame));  //停止外层循环回调
             static int count = 0;  //用于跳过初始界面商店的重复刷新
             if (count)
             {
@@ -159,23 +145,13 @@ public:
             }
             count++;
 
-            seeEnemy1->setEnabled(true);
-            seeEnemy2->setEnabled(true);
+            seeEnemy->setEnabled(true);
 
             //重现我方英雄
-            ShowHeroes(0);
+            ShowHeroes(1);
 
             //撤去敌方英雄
-            CoverHeroes(enemyType);
-
-
-            // 改变下一次需要对战的人机
-            if (enemyType == 1) {
-                enemyType = 2;
-            }
-            else {
-                enemyType = 1;
-            }
+            CoverHeroes(0);
 
 
             //进度条开始
@@ -192,37 +168,33 @@ public:
 
 
             if (currentTime >= totalTime) {  //休息时间结束
-                this->unschedule("progress");
+                this->unschedule("progress_");
                 currentTime = 0.0f;   //重置
                 fight = 1;
                 progress0->setVisible(false);
                 progress1->setVisible(false);
-                schedule(CC_SCHEDULE_SELECTOR(playerScene::startGame), 1.0f);
+                schedule(CC_SCHEDULE_SELECTOR(networkScene::startGame), 1.0f);
             }
-                }, "progress");
+                }, "progress_");
         }
         else {
 
-            unschedule(CC_SCHEDULE_SELECTOR(playerScene::startGame));  //停止外层回调
+            unschedule(CC_SCHEDULE_SELECTOR(networkScene::startGame));  //停止外层回调
 
             //显示敌方英雄
-            ShowHeroes(enemyType);
             ShowHeroes(0);
+            ShowHeroes(1);
             store->setVisible(true);
 
             // 设置观察按键的禁用
             goback->setVisible(false);
-            seeEnemy1->setEnabled(false);
-            seeEnemy2->setEnabled(false);
+            seeEnemy->setEnabled(false);
 
             //开始对打
             startattack();
         }
     }
 
-    void seeEnemy1_callback(Ref* pSender);  //观察人机1的棋盘
-    void seeEnemy2_callback(Ref* pSender);  //观察人机2的棋盘
+    void seeEnemy_callback(Ref* pSender);  //观察敌方棋盘
     void goback_callback(Ref* pSender);     //返回
-    void enemyMove(float dt);    //人机的移动
 };
-

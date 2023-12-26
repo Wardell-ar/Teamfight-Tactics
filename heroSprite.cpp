@@ -100,10 +100,11 @@ Hero* Hero::createHero(int heroType, const Vec2& position, int camp)
                 // 初始化为第一种类型的英雄--小黑子（普攻小篮球，大招大篮球）(1)
                 hero->initWithFile("hero1.png");
                 // 可以根据实际需求再调整血量、蓝条、等级等属性
-                hero->max_blood = 10000;
-                hero->blood = 10000;
-                hero->each_magic = 50;
-                hero->power = 10000;
+                hero->max_blood = 500;
+                hero->blood = 500;
+                hero->each_magic = 20;
+                hero->power = 40;
+                hero->skill = 80;
                 hero->weapon = 1;
                 hero->heroType = 1;
 
@@ -321,7 +322,19 @@ void Hero::upgrade(int newLevel) {
     level = newLevel;
     switch (heroType) {
         case 1:
-
+            if (newLevel == 2)
+            {
+                max_blood = 850;
+                blood = 850;
+                power = 60;
+                skill = 180;
+            }
+            else {
+                max_blood = 1500;
+                blood = 1500;
+                power = 90;
+                skill = 405;
+            }
             break;
         case 2:
             if (newLevel == 2)
@@ -479,13 +492,26 @@ void Hero::attack(Hero* target)
                 if (magic >= 100) {
                     Hero* friendTarget;
                     Vec2 friendPosition;
-                    int lowestBlood = 9999999;
-                    for (Hero* friendHero : allMyHeroes) {
-                        if (friendHero->isInBoard() && !friendHero->isDead()) {
-                            if (friendHero->getBlood() < lowestBlood) {
-                                lowestBlood = friendHero->getBlood();
-                                friendTarget = friendHero;
-                                friendPosition = friendHero->getPosition();
+                    int lowestBlood = 101;
+                    if (camp) {
+                        for (Hero* friendHero : allMyHeroes) {
+                            if (friendHero->isInBoard() && !friendHero->isDead()) {
+                                if ((friendHero->getBlood() / friendHero->getMaxBlood()) * 100 < lowestBlood) {
+                                    lowestBlood = (friendHero->getBlood() / friendHero->getMaxBlood()) * 100;
+                                    friendTarget = friendHero;
+                                    friendPosition = friendHero->getPosition();
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        for (Hero* friendHero : allEnemyHeroes) {
+                            if (friendHero->isInBoard() && !friendHero->isDead()) {
+                                if ((friendHero->getBlood() / friendHero->getMaxBlood()) * 100 < lowestBlood) {
+                                    lowestBlood = (friendHero->getBlood() / friendHero->getMaxBlood()) * 100;
+                                    friendTarget = friendHero;
+                                    friendPosition = friendHero->getPosition();
+                                }
                             }
                         }
                     }
@@ -646,8 +672,8 @@ void Hero::attack(Hero* target)
             return;
         }
         if (heroType == 5 && magic >= 100) {
-           
-           
+
+
 
             auto beforeRotate = CallFunc::create([this]() {
                 for (auto node : this->getChildren()) {
@@ -660,7 +686,7 @@ void Hero::attack(Hero* target)
                     node->setVisible(true);
                 }
                 });
-            auto sequence = Sequence::create(beforeRotate, moveTo,  shakeAction, afterRotate, attackCallback, moveBack, nullptr);
+            auto sequence = Sequence::create(beforeRotate, moveTo, shakeAction, afterRotate, attackCallback, moveBack, nullptr);
             this->runAction(sequence);
             return;
         }
@@ -741,7 +767,7 @@ int Hero::getCamp() const
 }
 
 // 获取血量
-int Hero::getBlood() const
+float Hero::getBlood()const
 {
     return blood;
 }

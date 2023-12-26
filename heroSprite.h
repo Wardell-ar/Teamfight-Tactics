@@ -65,7 +65,7 @@ public:
     int getCamp() const;
 
     // 获取血量
-    int getBlood() const;
+    float getBlood() const;
 
     //设置位置下标
     void setIndex(int index);
@@ -108,11 +108,11 @@ public:
         Die = d;
     }
 
-    int getMaxBlood() {
+    float getMaxBlood() {
         return max_blood;
     }
 
-    void setBlood(int b) {
+    void setBlood(float b) {
         blood = b;
     }
 
@@ -124,5 +124,21 @@ public:
 
     int getStartMagic() {
         return start_magic;
+    }
+
+    int getMagic() {
+        return magic;
+    }
+
+    int getEachMagic() {
+        return each_magic;
+    }
+
+    int getPower() {
+        return power;
+    }
+
+    int getSkill() {
+        return skill;
     }
 };

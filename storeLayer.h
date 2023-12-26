@@ -18,7 +18,7 @@ USING_NS_CC;
 class storeLayer : public Layer
 {
 public:
-    int herotype[5];
+    int herotype[5];   //五个按键代表的英雄类型（每次都会刷新）
     int herocost[ALL_TYPE + 1] = { -1,1,5,3,2,2,4 };
     static storeLayer* createLayer();
     CREATE_FUNC(storeLayer);
@@ -37,6 +37,8 @@ public:
     cocos2d::ui::Button* heroButton3;
     cocos2d::ui::Button* heroButton4;
     cocos2d::ui::Button* heroButton5;
+
+    MenuItemImage* upgradeButton;
 
     void updateUI(); // 更新UI显示
     void upgrade();  // 升级操作

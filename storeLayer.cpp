@@ -18,7 +18,7 @@ bool storeLayer::init() {
 	}
 
     // 初始化金币、经验值、等级
-    gold = 100; // 初始金币数量
+    gold = 50; // 初始金币数量
     exp = 0;
     level = 1;
 
@@ -46,8 +46,17 @@ bool storeLayer::init() {
     this->addChild(expBar);
 
     // 创建升级按钮
-    auto upgradeButton = MenuItemImage::create("uplevel.png", "uplevel1.png",
+    upgradeButton = MenuItemImage::create("uplevel.png", "uplevel1.png",
         CC_CALLBACK_1(storeLayer::onUpgradeButtonClicked, this));
+
+    
+    //升级按钮的禁用
+    this->schedule([this](float dt) {
+        if (level == 5) {
+            upgradeButton->setEnabled(false);  //禁用升级按键
+            this->unschedule("cutupgrade");
+        }
+    }, "cutupgrade");
 
     // 创建刷新按钮
     auto refreshButton = MenuItemImage::create("refresh.png", "refresh1.png",
@@ -69,7 +78,7 @@ void storeLayer::updateUI() {
     // 更新金币、等级标签和经验条显示
     goldLabel->setString("Gold: " + std::to_string(gold));
     levelLabel->setString("Level: " + std::to_string(level));
-    expBar->setPercent(static_cast<float>(exp) / (level * 10) * 100);
+    expBar->setPercent(20 * exp);
 }
 
 void storeLayer::upgrade() {
@@ -77,7 +86,7 @@ void storeLayer::upgrade() {
     if (gold >= 4) {
         gold -= 4;
         exp++;
-        if (exp >= level * 10) {
+        if (exp >= 5) {
             level++;
             exp = 0;
         }

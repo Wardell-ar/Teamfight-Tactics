@@ -25,6 +25,8 @@ extern std::vector<Sprite*>MySeat;  //大小为14
   13——备战席8
 */
 
+playerroleLayer* myrole_;
+playerroleLayer* enemyrole_;
 
 extern chessboardSeat seat1;   //棋盘位置
 extern preparationSeat seat2;   //备战席位置
@@ -341,10 +343,10 @@ bool networkScene::init() {
 
 	//每一帧更新小小英雄的血条
 	this->schedule([this](float dt) {
-		float mypercentage = myrole->cur_blood / myrole->max_blood * 100.0f;
-	float enemypercentage = enemyrole->cur_blood / enemyrole->max_blood * 100.0f;
-	myrole->healthBar->setPercentage(mypercentage);
-	enemyrole->healthBar->setPercentage(enemypercentage);
+		float mypercentage = myrole_->cur_blood / myrole_->max_blood * 100.0f;
+	float enemypercentage = enemyrole_->cur_blood / enemyrole_->max_blood * 100.0f;
+	myrole_->healthBar->setPercentage(mypercentage);
+	enemyrole_->healthBar->setPercentage(enemypercentage);
 	if (mypercentage == 0 && enemypercentage != 0) {  //我方失败
 		auto delayAction = DelayTime::create(1.0f); // 2秒钟的延迟时间
 		auto callback = CallFunc::create([]() {
@@ -481,10 +483,10 @@ bool networkScene::init() {
 
 
 	//小小英雄
-	myrole = playerroleLayer::createLayer(0);
-	this->addChild(myrole, 3, ROLETAG);
-	enemyrole = playerroleLayer::createLayer(1);
-	this->addChild(enemyrole, 3);
+	myrole_ = playerroleLayer::createLayer(0);
+	this->addChild(myrole_, 3, ROLETAG);
+	enemyrole_ = playerroleLayer::createLayer(1);
+	this->addChild(enemyrole_, 3);
 
 
 
@@ -532,8 +534,8 @@ bool networkScene::init() {
 		Vec2 pos = background->convertTouchToNodeSpace(t);
 		if (pos.x > 323 && pos.x < 1247 && pos.y>327 && pos.y < 839)  //小小英雄移动范围
 		{
-			myrole->cur_position = Vec2(pos.x + 70, pos.y + 50);
-			auto role = this->myrole->getChildByTag(ROLETAG);
+			myrole_->cur_position = Vec2(pos.x + 70, pos.y + 50);
+			auto role = myrole_->getChildByTag(ROLETAG);
 			role->stopAllActions();
 			role->runAction(MoveTo::create(0.3, Vec2(pos.x + 55.25, pos.y + 46.875)));
 			return true;   //事件不再传递给其他监听器
@@ -549,8 +551,8 @@ bool networkScene::init() {
 
 	//检测敌方英雄的移动
 	this->schedule([this](float dt) {
-		enemyrole->getChildByTag(ROLETAG)->stopAllActions();
-	enemyrole->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3f, Vec2(enemyrole->cur_position.x - 14.75, enemyrole->cur_position.y - 3.125)));
+		enemyrole_->getChildByTag(ROLETAG)->stopAllActions();
+	enemyrole_->getChildByTag(ROLETAG)->runAction(MoveTo::create(0.3f, Vec2(enemyrole_->cur_position.x - 14.75, enemyrole_->cur_position.y - 3.125)));
 		}, 0.3, "enemymove_");
 
 

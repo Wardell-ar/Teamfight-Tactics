@@ -8,13 +8,12 @@ USING_NS_CC;
 extern Vector<Hero*> allMyHeroes;//我方所有英雄
 extern Vector<Hero*> allEnemyHeroes;//敌方所有英雄
 extern int fight;
-
+extern playerroleLayer* myrole_;
+extern playerroleLayer* enemyrole_;
 
 class networkScene : public Scene
 {
 public:
-    playerroleLayer* myrole;
-    playerroleLayer* enemyrole;
 
     storeLayer* store;
 
@@ -109,7 +108,7 @@ public:
                 }
             }
             if (countUnDead == 0) {
-                myrole->attack(enemyrole);
+                myrole_->attack(enemyrole_);
             }
 
             countUnDead = 0;
@@ -119,7 +118,7 @@ public:
                 }
             }
             if (countUnDead == 0) {
-                enemyrole->attack(myrole);
+                enemyrole_->attack(myrole_);
             }
             schedule(CC_SCHEDULE_SELECTOR(networkScene::startGame), 1.0f);
         }

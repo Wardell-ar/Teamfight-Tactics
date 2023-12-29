@@ -84,8 +84,6 @@ using namespace std;
 
 typedef websocketpp::server<websocketpp::config::asio> server_;
 
-vector<server_::message_ptr> a;
-vector<websocketpp::connection_hdl> b;
 // 定义一个自定义消息处理器
 class MyHandler : public websocketpp::server<websocketpp::config::asio>::message_handler {
 public:
@@ -99,55 +97,65 @@ public:
             std::cerr << "无法解析JSON消息" << std::endl;
             return;
         }
-        // 获取英雄类型
-        if (document.HasMember("heroType") && document["heroType"].IsInt()) {
-            int heroType = document["heroType"].GetInt();
-            std::cout << "英雄类型: " << heroType << std::endl;
-        }
-        a.push_back(msg);
-        b.push_back(hdl);
-        auto it = connections_.begin();
-        if (connections_.size() == 2) {
-            int i = 1;
-            for (auto it = connections_.begin(); it != connections_.end(); ++it,i--) {
-                try {
-                    server.send(it->lock(), a[i]->get_payload(), websocketpp::frame::opcode::text);
+
+        if (document.HasMember("GameinProgress") && document["GameinProgress"].IsInt()
+            && document.HasMember("Gamein") && document["Gamein"].IsInt()) {
+            int Type1 = document["GameinProgress"].GetInt();
+            int Type2 = document["Gamein"].GetInt();
+            if (Type2 == 0) {
+                // 创建房间
+                if (document.HasMember("BuildRoom") && document["BuildRoom"].IsInt()) {
+                    for (auto it : connections_) {
+                        try {
+                            server.send(it, msg->get_payload(), websocketpp::frame::opcode::text);
+                        }
+                        catch (const exception& e) {
+                            cout << "Error sending message: " << e.what() << endl;
+                        }
+                    }
                 }
-                catch (const exception& e) {
-                    cout << "Error sending message: " << e.what() << endl;
+                // 加入房间
+                if (document.HasMember("JoinRoom") && document["JoinRoom"].IsInt()) {
+                    //int Type = document["JoinRoom"].GetInt();
+                    for (auto it : connections_) {
+                        try {
+                            server.send(it, msg->get_payload(), websocketpp::frame::opcode::text);
+                        }
+                        catch (const exception& e) {
+                            cout << "Error sending message: " << e.what() << endl;
+                        }
+                    }
+                }
+                //开始对战
+                if (document.HasMember("GameinProgress") && document["GameinProgress"].IsInt()) {
+                    int Type = document["GameinProgress"].GetInt();
+                    if (Type == 1) {
+                        for (auto it : connections_) {
+                            try {
+                                server.send(it, "start", websocketpp::frame::opcode::text);
+                            }
+                            catch (const exception& e) {
+                                cout << "Error sending message: " << e.what() << endl;
+                            }
+                        }
+                    }
                 }
             }
-            a.clear();
-            connections_.clear();
-            b.clear();
-        }
-        /*
-        // 解析JSON消息
-        rapidjson::Document document;
-        document.Parse(msg->get_payload().c_str());
-
-        // 检查解析是否成功
-        if (!document.IsObject()) {
-            std::cerr << "无法解析JSON消息" << std::endl;
-            return;
-        }
-        
-        // 获取英雄类型
-        if (document.HasMember("heroType") && document["heroType"].IsInt()) {
-            int heroType = document["heroType"].GetInt();
-            std::cout << "英雄类型: " << heroType << std::endl;
-        }
-
-       
-
-        // 构建响应消息
-        rapidjson::StringBuffer buffer;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        document.Accept(writer);
-        std::string message = buffer.GetString();
-
-        // 发送 JSON 数据
-        server.send(hdl, msg->get_payload(), msg->get_opcode());*/
+            else {//对战信息
+                cout << "saddddddddddddddddddddddddddddddddddddddddddddddddddddd";
+                for (auto it = connections_.begin(); it != connections_.end(); ++it) {
+                    try {
+                        if (it->lock() != hdl.lock()) {
+                           
+                            server.send(it->lock(), msg->get_payload(), websocketpp::frame::opcode::text);
+                        }
+                    }
+                    catch (const exception& e) {
+                        cout << "Error sending message: " << e.what() << endl;
+                    }
+                }
+            }
+        }         
     }
 
     // 当有新的连接建立时调用
@@ -190,7 +198,17 @@ public:
 int main() {
     try {
         MyHandler handler;
+        boost::asio::io_service io_service;
+        boost::asio::ip::tcp::resolver resolver(io_service);
+        boost::asio::ip::tcp::resolver::query query(boost::asio::ip::host_name(), "");
 
+        boost::asio::ip::tcp::resolver::iterator endpoints = resolver.resolve(query);
+        boost::asio::ip::tcp::resolver::iterator end;
+
+        while (endpoints != end) {
+            boost::asio::ip::tcp::endpoint endpoint = *endpoints++;
+            std::cout << "IP Address: " << endpoint.address().to_string() << std::endl;
+        }
 
         // 设置WebSocket++服务器
         handler.server.init_asio();
@@ -206,9 +224,8 @@ int main() {
         handler.server.set_close_handler(bind(&MyHandler::on_close, &handler, std::placeholders::_1));
         
        
-
         // 监听在端口9002
-        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), 9002);
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v6(), 9002); 
         handler.server.listen(endpoint);
 
         // 启动服务器接受循环

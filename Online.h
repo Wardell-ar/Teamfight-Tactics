@@ -5,6 +5,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include "json.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -15,34 +16,35 @@ USING_NS_CC;
 class ClientSocket :public cocos2d::network::WebSocket::Delegate
 {
 public:
-    // 连接到 WebSocket 服务器
-    void connectToServer();
+	// 连接到 WebSocket 服务器
+	void connectToServer();
 
-	//发送信息
-    void onSend(rapidjson::Document& document);
+	//发送房间信息
+	static void onSend(rapidjson::Document& document);
 
-    // WebSocket 连接成功回调
-    void onOpen(cocos2d::network::WebSocket* ws);
+	//发送对战信息
+	static void onSendGamein(rapidjson::Document& documentGamein);
 
-    // WebSocket 收到消息回调
+	// WebSocket 连接成功回调
+	void onOpen(cocos2d::network::WebSocket* ws);
+
+	// WebSocket 收到消息回调
 	void onMessage(cocos2d::network::WebSocket* ws, const cocos2d::network::WebSocket::Data& data);
 
-    // WebSocket 连接关闭回调
+	// WebSocket 连接关闭回调
 	void onClose(cocos2d::network::WebSocket* ws);
 
-    // WebSocket 错误回调
+	// WebSocket 错误回调
 	void onError(cocos2d::network::WebSocket* ws, const cocos2d::network::WebSocket::ErrorCode& error);
-    /*
-    // 在适当的时候清理 WebSocket 资源
-    virtual void onExit() override {
-        if (webSocket) {
-            webSocket->close();
-            webSocket = nullptr;
-        }
+	
+	static void closeWebSocket();
+	
+	// 在适当的时候清理 WebSocket 资源
+	~ClientSocket();
 
-        Scene::onExit();
-    }*/
 };
+
+
 
 
 
@@ -123,3 +125,4 @@ private:
 
 };
 */
+

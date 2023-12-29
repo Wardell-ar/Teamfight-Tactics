@@ -1,17 +1,14 @@
 #include "startLayer.h"
 #include"helpScene.h"
-#include "playerScene.h"
-#include "ui/CocosGUI.h"
-#include "GameSettings.h"
-
+#include"playerScene.h"
 USING_NS_CC;
 
-using namespace ui;
+extern int BuildRoom;
+extern int JoinRoom;
+extern int GameinProgress;
+extern int Isconnected;
 
-#include "D:\jinchanchan\cocos2d\cocos\editor-support\cocostudio\SimpleAudioEngine.h"
-
-using namespace CocosDenshion;
-//CocosGUI包含了UIButton、UIImage、Textture
+extern rapidjson::Document document;
 
 
 Layer* startLayer::createLayer() {
@@ -26,43 +23,8 @@ bool startLayer::init() {
 
 	//背景面板
 	auto Background = Sprite::create("startSceneBackground.png");
-	Background->setPosition(960, 540);
+	Background->setPosition(955, 540);
 	this->addChild(Background, 0);  //添加到挂件
-
-	auto audio = SimpleAudioEngine::getInstance();
-	audio->playBackgroundMusic("Bgm1.mp3", true);
-
-	auto set1 = Sprite::create("SetButton2.png");
-	auto set2 = Sprite::create("SetButton1.png");
-
-	auto _set = MenuItemSprite::create(set1, set2,
-		CC_CALLBACK_1(startLayer::callbackof_set, this));
-
-	auto SET = Menu::create(_set, NULL);
-	SET->setPosition(1795, 990);
-	this->addChild(SET, 3);
-
-	/*auto _openMusicItem = MenuItemImage::create(
-		"SoundButton11.png",
-		"SoundButton12.png"
-	);
-	auto _closeMusicItem = MenuItemImage::create(
-		"SoundButton21.png",
-		"SoundButton22.png");
-	
-	MenuItemToggle* itembgm = MenuItemToggle::createWithCallback(CC_CALLBACK_1(startLayer::onSoundControl, this),
-		_closeMusicItem, _openMusicItem, NULL);
-	if (SimpleAudioEngine::getInstance()->isBackgroundMusicPlaying())
-	{
-		itembgm->setSelectedIndex(0);
-	}
-	else
-	{
-		itembgm->setSelectedIndex(1);
-	}
-	auto menu = Menu::create(itembgm, NULL);
-	menu->setPosition(1700,900);
-	this->addChild(menu);*/
 
 
 	//五个按键选项的图片缓存
@@ -108,21 +70,73 @@ bool startLayer::init() {
 /* 开始游戏 */
 void startLayer::callbackofbutton1(Ref* pSender)   //开始游戏
 {
-	auto start = playerScene::createScene();
-	Director::getInstance()->pushScene(start);   //退出
+	ClientSocket::closeWebSocket();
+	auto scene = playerScene::createScene();
+	Director::getInstance()->pushScene(scene);
 }
 
 /* 创建房间 */
 void startLayer::callbackofbutton2(Ref* pSender)   //创建房间
 {
-	auto createroomscene = createRoomScene::createScene();
-	Director::getInstance()->pushScene(createroomscene);
+	if (Isconnected && !BuildRoom) {
+		BuildRoom = 1;
+		SendJSONstring(document);
+		ClientSocket::onSend(document);
+		auto createroomscene = createRoomScene::createScene();
+		Director::getInstance()->pushScene(createroomscene);   //压栈
+	}
+	else if(!Isconnected) {
+		auto label = Label::createWithTTF("Not connected to the server!", "fonts/arial.ttf", 100);
+		label->setPosition(955, 700);
+		this->addChild(label,20);
+		// 使用定时器调度，1秒后执行回调函数
+		this->scheduleOnce([label](float dt) {
+			// 在回调函数中移除标签
+			label->removeFromParent();
+			}, 1.0f, "remove_label");
+	}
+	else{
+		auto label = Label::createWithTTF("Room Already Exists!", "fonts/arial.ttf", 100);
+		label->setPosition(955, 700);
+		this->addChild(label, 20);
+		// 使用定时器调度，1秒后执行回调函数
+		this->scheduleOnce([label](float dt) {
+			// 在回调函数中移除标签
+			label->removeFromParent();
+			}, 1.0f, "remove_label");
+	}
 }
 
 /* 加入房间 */
 void startLayer::callbackofbutton3(Ref* pSender)   //加入房间
 {
-	Director::getInstance()->end();   //退出
+	if (Isconnected && BuildRoom) {
+		JoinRoom = 1;
+		SendJSONstring(document);
+		ClientSocket::onSend(document);
+		auto joinroomscene = joinRoomScene::createScene();
+		Director::getInstance()->pushScene(joinroomscene);   //压栈
+	}
+	else if(!Isconnected) {
+		auto label = Label::createWithTTF("Not connected to the server!", "fonts/arial.ttf", 100);
+		label->setPosition(955, 700);
+		this->addChild(label, 20);
+		// 使用定时器调度，1秒后执行回调函数
+		this->scheduleOnce([label](float dt) {
+			// 在回调函数中移除标签
+			label->removeFromParent();
+			}, 1.0f, "remove_label");
+	}
+	else{
+		auto label = Label::createWithTTF("The room has not been created!", "fonts/arial.ttf", 100);
+		label->setPosition(955, 700);
+		this->addChild(label, 20);
+		// 使用定时器调度，1秒后执行回调函数
+		this->scheduleOnce([label](float dt) {
+			// 在回调函数中移除标签
+			label->removeFromParent();
+			}, 1.0f, "remove_label");
+	}
 }
 
 /* 帮助 */
@@ -136,34 +150,4 @@ void startLayer::callbackofbutton4(Ref* pSender)   //帮助
 void startLayer::callbackofbutton5(Ref* pSender)   //退出
 {
 	Director::getInstance()->end();   //退出
-}
-
-void startLayer::onSoundControl(Ref* pSender) {
-	//创建临时CCMenuItemToggle
-	MenuItemToggle* temp = (MenuItemToggle*)pSender;
-	//根据CCMenuItemToggle的选项来决定音乐的开关
-	if (temp->getSelectedIndex() == 0) {
-		//暂停播放音乐
-		SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
-	}
-	if (temp->getSelectedIndex() == 1) {
-		//继续播放音乐
-		SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
-	}
-}
-
-void startLayer::callbackof_set(Ref* pSender)   //创建房间
-{
-	auto gamesettings = GameSettings::createLayer(); //设置
-	this->addChild(gamesettings, 100);
-
-	auto closeLayerButton = Button::create("back1.png", "back2.png");
-	closeLayerButton->setPosition(Vec2(1150, 750));
-	this->addChild(closeLayerButton, 101);
-	closeLayerButton->addClickEventListener([=](Ref* sender) {
-		// 移除Layer
-		gamesettings->removeFromParentAndCleanup(true);
-		closeLayerButton->removeFromParentAndCleanup(true);
-		});
-
 }

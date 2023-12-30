@@ -140,13 +140,13 @@ public:
                         }
                     }
                 }
+                cout << Type2 << endl;
             }
             else {//对战信息
-                cout << "saddddddddddddddddddddddddddddddddddddddddddddddddddddd";
+                cout << document["positionX"].GetFloat() << endl;
                 for (auto it = connections_.begin(); it != connections_.end(); ++it) {
                     try {
                         if (it->lock() != hdl.lock()) {
-                           
                             server.send(it->lock(), msg->get_payload(), websocketpp::frame::opcode::text);
                         }
                     }
@@ -165,10 +165,10 @@ public:
         // 将新连接加入连接集合
         connections_.insert(hdl);
 
-        // 如果连接数达到两个，则开始消息交换
-        if (connections_.size() == 2) {
-            broadcast("Two clients connected. Start exchanging messages.");
-        }
+        //// 如果连接数达到两个，则开始消息交换
+        //if (connections_.size() == 2) {
+        //    broadcast("Two clients connected. Start exchanging messages.");
+        //}
     }
     // 当连接关闭时调用
     void on_close(websocketpp::connection_hdl hdl) {
@@ -177,7 +177,7 @@ public:
         // 从连接集合中移除关闭的连接
         connections_.erase(hdl);
     }
-    void broadcast(const string& message) {
+    /*void broadcast(const string& message) {
         for (auto it = connections_.begin(); it != connections_.end(); ++it) {
             try {
                 server.send(*it, message, websocketpp::frame::opcode::text);
@@ -186,7 +186,7 @@ public:
                 cout << "Error sending message: " << e.what() << endl;
             }
         }
-    }
+    }*/
     
     // WebSocket++服务器实例
     websocketpp::server<websocketpp::config::asio> server;

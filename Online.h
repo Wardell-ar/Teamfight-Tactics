@@ -23,7 +23,7 @@ public:
 	static void onSend(rapidjson::Document& document);
 
 	//发送对战信息
-	static void onSendGamein(rapidjson::Document& documentGamein);
+	static void onSendGamein();
 
 	// WebSocket 连接成功回调
 	void onOpen(cocos2d::network::WebSocket* ws);

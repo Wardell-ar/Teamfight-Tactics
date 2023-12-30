@@ -19,7 +19,7 @@ int BuildRoom = 0;
 int JoinRoom = 0;
 int GameinProgress = 0;
 int Isconnected = 0;
-int Gamein;
+int Gamein = 0;
 
 // 连接到 WebSocket 服务器
 void ClientSocket::connectToServer() {
@@ -27,7 +27,7 @@ void ClientSocket::connectToServer() {
 
 	// 使用 init_by_url 方法初始化 WebSocket
 
-	if (webSocket->init(*this, "ws://192.168.43.146:9002"))
+	if (webSocket->init(*this, "ws://100.81.183.216:9002"))
 	{
 		Isconnected = 1;
 		CCLOG("Connected to server");
@@ -46,13 +46,13 @@ void ClientSocket::onSend(rapidjson::Document& document) {
 	webSocket->send(message);
 }
 
-void ClientSocket::onSendGamein(rapidjson::Document& documentGamein) {
+void ClientSocket::onSendGamein() {
 	// 将 RapidJSON 文档转为字符串
-	rapidjson::StringBuffer buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-	document.Accept(writer);
-	std::string message = buffer.GetString();
-	webSocket->send(message);
+	rapidjson::StringBuffer buffer1;
+	rapidjson::Writer<rapidjson::StringBuffer> writer1(buffer1);
+	document.Accept(writer1);
+	std::string message1 = buffer1.GetString();
+	webSocket->send(message1);
 }
 
 // WebSocket 连接成功回调

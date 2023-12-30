@@ -9,7 +9,7 @@ extern int GameinProgress;
 extern int Isconnected;
 
 extern rapidjson::Document document;
-
+extern cocos2d::network::WebSocket* webSocket;
 
 Layer* startLayer::createLayer() {
 	return startLayer::create();  //直接调用create方法
@@ -70,7 +70,6 @@ bool startLayer::init() {
 /* 开始游戏 */
 void startLayer::callbackofbutton1(Ref* pSender)   //开始游戏
 {
-	ClientSocket::closeWebSocket();
 	auto scene = playerScene::createScene();
 	Director::getInstance()->pushScene(scene);
 }

@@ -5,6 +5,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include"endScene.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -27,13 +28,13 @@ void ClientSocket::connectToServer() {
 
 	// 使用 init_by_url 方法初始化 WebSocket
 
-	if (webSocket->init(*this, "ws://100.81.183.216:9002"))
+	if (webSocket->init(*this, "ws://100.81.180.38:9002"))
 	{
 		Isconnected = 1;
 		CCLOG("Connected to server");
 		// 连接已经建立
 	}
-	
+
 }
 
 //传输数据
@@ -68,7 +69,14 @@ void ClientSocket::onMessage(cocos2d::network::WebSocket* ws, const cocos2d::net
 	if (message == "start") {
 		GameinProgress = 2;
 	}
-	else if(Gamein == 0){
+	else if (message == "win") {
+		auto endscene = endScene::createScene(1);
+		Director::getInstance()->pushScene(endscene);
+		AudioEngine::stopAll();
+		int audioId = AudioEngine::play2d("victory.mp3");
+		AudioEngine::setVolume(audioId, 1.0f);
+	}
+	else if (Gamein == 0) {
 		ReceiveJSONstring(message);
 	}
 	else {

@@ -8,8 +8,8 @@ extern int JoinRoom;
 extern int GameinProgress;
 extern int Gamein;
 
- int mydata[14][7];
- int enemydata[14][7];
+extern int mydata[14][7];
+extern int enemydata[14][7];
 
 extern playerroleLayer* myrole_;
 extern playerroleLayer* enemyrole_;
@@ -47,7 +47,7 @@ void SendJSONstring(rapidjson::Document& document)   /*·¢ËÍJSON×Ö·û´®*/
 {
     // ´´½¨ RapidJSON ÎÄµµ
     document.SetObject();
-    
+
     document.AddMember("hero1Type", -1, document.GetAllocator());
     document.AddMember("hero1Level", -1, document.GetAllocator());
     document.AddMember("hero1inBoard", -1, document.GetAllocator());
@@ -159,7 +159,7 @@ void SendJSONstring(rapidjson::Document& document)   /*·¢ËÍJSON×Ö·û´®*/
     document.AddMember("hero14Weapon1", -1, document.GetAllocator());
     document.AddMember("hero14Weapon2", -1, document.GetAllocator());
     document.AddMember("hero14Weapon3", -1, document.GetAllocator());
-    
+
 
     document.AddMember("positionX", 0, document.GetAllocator());
     document.AddMember("positionY", 0, document.GetAllocator());
@@ -189,7 +189,7 @@ void SendJSONstringGamein()   /*·¢ËÍJSON×Ö·û´®*/
         rapidjson::Value& hero1weapon3 = document["hero1Weapon3"];
         hero1weapon3.SetInt(mydata[0][6]);
     }
-    
+
     rapidjson::Value& hero2type = document["hero2Type"];
     hero2type.SetInt(mydata[1][0]);
     if (mydata[1][0] != -1) {
@@ -432,8 +432,8 @@ bool ReceiveJSONstring(std::string receivedData)
     if (!receivedDoc.IsObject()) {
         std::cerr << "Error parsing JSON." << std::endl;
         return 1;
-    }   
-    
+    }
+
 
     BuildRoom = receivedDoc["BuildRoom"].GetInt();
     JoinRoom = receivedDoc["JoinRoom"].GetInt();
@@ -452,8 +452,8 @@ bool ReceiveJSONstringGamein(std::string received) {
         std::cerr << "Error parsing JSON." << std::endl;
         return 1;
     }
-    
-    
+
+
     enemydata[0][0] = receivedD["hero1Type"].GetInt();
     enemydata[0][1] = receivedD["hero1Level"].GetInt();
     enemydata[0][2] = receivedD["hero1inBoard"].GetInt();

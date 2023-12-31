@@ -27,4 +27,3 @@ void SendJSONstringGamein();
 
 bool ReceiveJSONstringGamein(std::string receivedData);
 
-

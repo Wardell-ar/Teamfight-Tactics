@@ -6,6 +6,7 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
 #include "json.h"
+#include "cocos/audio/include/AudioEngine.h"
 
 using namespace cocos2d;
 using namespace cocos2d::network;
@@ -36,9 +37,9 @@ public:
 
 	// WebSocket 错误回调
 	void onError(cocos2d::network::WebSocket* ws, const cocos2d::network::WebSocket::ErrorCode& error);
-	
+
 	static void closeWebSocket();
-	
+
 	// 在适当的时候清理 WebSocket 资源
 	~ClientSocket();
 
@@ -125,4 +126,3 @@ private:
 
 };
 */
-
